@@ -1,0 +1,39 @@
+modLoader = "javafml"
+loaderVersion = "${loader_version_range}"
+license = "${mod_license}"
+issueTrackerURL = "${mod_sources}/issues"
+
+[[mods]]
+modId = "${mod_id}"
+version = "${mod_version}"
+displayName = "${mod_name}"
+description = '''${mod_description}'''
+authors = "${mod_authors}"
+displayURL = "${mod_sources}"
+logoFile = "assets/antique_atlas/icon.png"
+# Client-only: servers never need this mod.
+displayTest = "IGNORE_ALL_VERSION"
+
+[[mixins]]
+config = "${mod_id}.mixins.json"
+
+[[dependencies.${mod_id}]]
+modId = "neoforge"
+type = "required"
+versionRange = "${neo_version_range}"
+ordering = "NONE"
+side = "CLIENT"
+
+[[dependencies.${mod_id}]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft_version_range}"
+ordering = "NONE"
+side = "CLIENT"
+
+[[dependencies.${mod_id}]]
+modId = "surveyor"
+type = "required"
+versionRange = "${surveyor_version_range}"
+ordering = "AFTER"
+side = "CLIENT"
