@@ -55,6 +55,7 @@ public class SubTile {
 
 	public SubTile copy() {
 		SubTile copy = new SubTile(part);
+		copy.texture = this.texture;
 		copy.x = this.x;
 		copy.y = this.y;
 		copy.shape = this.shape;

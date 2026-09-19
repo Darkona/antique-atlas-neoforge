@@ -43,6 +43,8 @@ public class TileRenderIterator implements Iterator<SubTileQuartet>, Iterable<Su
 		this.scope.set(scope);
 		chunkX = scope.minX;
 		chunkY = scope.minY;
+		subtileX = -1;
+		subtileY = -1;
 	}
 
 	/**
@@ -89,12 +91,18 @@ public class TileRenderIterator implements Iterator<SubTileQuartet>, Iterable<Su
 
 	@Override
 	public boolean hasNext() {
-		return chunkX >= scope.minX && chunkX <= scope.maxX + 1 &&
-			chunkY >= scope.minY && chunkY <= scope.maxY + 1;
+		return chunkX >= scope.minX && chunkX <= scope.maxX + step &&
+			chunkY >= scope.minY && chunkY <= scope.maxY + step;
 	}
 
 	@Override
 	public SubTileQuartet next() {
+		if (chunkX == scope.minX) {
+			// Row start, the first row included: nothing to the left, prime the lookahead column
+			a = b = c = d = e = g = h = i = k = l = null;
+			f = tiles.getTile(chunkX, chunkY - step);
+			j = tiles.getTile(chunkX, chunkY);
+		}
 		a = b;
 		b = tiles.getTile(chunkX, chunkY - step * 2);
 		c = d;
@@ -176,23 +184,11 @@ public class TileRenderIterator implements Iterator<SubTileQuartet>, Iterable<Su
 
 		chunkX += step;
 		subtileX += 2;
-		if (chunkX > scope.maxX + 1) {
+		if (chunkX > scope.maxX + step) {
 			chunkX = scope.minX;
 			subtileX = -1;
 			chunkY += step;
 			subtileY += 2;
-			a = null;
-			b = null;
-			c = null;
-			d = null;
-			e = null;
-			f = tiles.getTile(chunkX, chunkY - step);
-			g = null;
-			h = null;
-			i = null;
-			j = tiles.getTile(chunkX, chunkY);
-			k = null;
-			l = null;
 		}
 		return quartet;
 	}
