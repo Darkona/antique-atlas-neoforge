@@ -675,6 +675,9 @@ public class AtlasScreen extends Component implements AtlasRenderer {
 		RenderSystem.disableBlend();
 
 		// Overlay the frame so that edges of the map are smooth:
+		// Fix: the frame's soft edge is translucent; blend was off here (and every tile batch turns it off when it closes).
+		RenderSystem.enableBlend();
+		RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		if (fullscreen) {
 			int left_width = bookWidth / 2 - 15;
 			context.blitSprite(BOOK_FRAME_FULLSCREEN, getGuiX(), getGuiY(), left_width, bookHeight);
@@ -683,6 +686,7 @@ public class AtlasScreen extends Component implements AtlasRenderer {
 		} else {
 			context.blit(BOOK_FRAME, getGuiX(), getGuiY(), 0, 0, bookWidth, bookHeight, bookWidth, bookHeight);
 		}
+		RenderSystem.disableBlend();
 		context.pose().pushPose();
 		context.pose().translate(getGuiX(), getGuiY(), 0);
 		float markerScale = getEffectiveScale() * (tilePixels / 16.0F);
@@ -854,8 +858,8 @@ public class AtlasScreen extends Component implements AtlasRenderer {
 		} else if (hoveredFriend != null) {
 			boolean self = hoveredFriend.username().equals(Minecraft.getInstance().player.getGameProfile().getName());
 			boolean inDim = hoveredFriend.dimension().equals(dim);
-			if (self && inDim) return;
-			context.renderTooltip(font, (self ? net.minecraft.network.chat.Component.translatable("gui.antique_atlas.followPlayer") : net.minecraft.network.chat.Component.literal(hoveredFriend.username())).withStyle(hoveredFriend.online() ? (self ? ChatFormatting.WHITE : ChatFormatting.LIGHT_PURPLE) : ChatFormatting.GRAY), 0, 0);
+			// Fix: returning here skipped popPose(), leaving everything drawn later this frame shifted by the mouse.
+			if (!(self && inDim)) context.renderTooltip(font, (self ? net.minecraft.network.chat.Component.translatable("gui.antique_atlas.followPlayer") : net.minecraft.network.chat.Component.literal(hoveredFriend.username())).withStyle(hoveredFriend.online() ? (self ? ChatFormatting.WHITE : ChatFormatting.LIGHT_PURPLE) : ChatFormatting.GRAY), 0, 0);
 		}
 		context.pose().popPose();
 	}

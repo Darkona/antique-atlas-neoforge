@@ -122,4 +122,22 @@ class AtlasSourceGuardTest {
 	void configScreenRegistered() throws IOException {
 		assertTrue(read("AntiqueAtlas.java").contains("registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new)"));
 	}
+
+	@Test
+	@DisplayName("The book frame's translucent edge is drawn with blending")
+	void frameBlended() throws IOException {
+		String src = read("gui/AtlasScreen.java");
+		String frame = src.substring(src.indexOf("// Overlay the frame so that edges of the map are smooth:"));
+		frame = frame.substring(0, frame.indexOf("context.pose().pushPose();"));
+		assertTrue(frame.indexOf("RenderSystem.enableBlend()") < frame.indexOf("BOOK_FRAME"), "blend must be on before the frame is drawn");
+	}
+
+	@Test
+	@DisplayName("Every pushPose of the hover tooltip is popped")
+	void tooltipPosePopped() throws IOException {
+		String src = read("gui/AtlasScreen.java");
+		String tooltip = src.substring(src.indexOf("context.pose().translate(getMouseX(), getMouseY(), 0);"));
+		tooltip = tooltip.substring(0, tooltip.indexOf("context.pose().popPose();"));
+		assertFalse(tooltip.contains("return;"), "a return between pushPose and popPose leaks the pose");
+	}
 }
