@@ -11,6 +11,7 @@ import com.google.common.collect.Multimap;
 import folk.sisby.surveyor.util.RegionPos;
 import java.util.BitSet;
 import java.util.HashMap;
+import java.util.Locale;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.levelgen.structure.Structure;
@@ -23,11 +24,13 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
@@ -85,7 +88,7 @@ public class AntiqueAtlas {
 
 	public static ItemStack getHandheldAtlas() {
 		ItemStack stack = Items.BOOK.getDefaultInstance().copy();
-		stack.set(DataComponents.ITEM_NAME, Component.translatable("item.antique_atlas.atlas"));
+		stack.set(DataComponents.ITEM_NAME, Component.translatable(ATLAS_KEY));
 		stack.set(DataComponents.LORE, new ItemLore(List.of(
 			Component.translatable("item.antique_atlas.atlas.lore").setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY).withItalic(false)),
 			Component.translatable("item.antique_atlas.atlas.hint", Component.translatable("item.antique_atlas.atlas")).setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY).withItalic(false))
@@ -105,8 +108,37 @@ public class AntiqueAtlas {
 		return null;
 	}
 
+	public static final String ATLAS_KEY = "item.antique_atlas.atlas";
+	private static Component lastCustomName;
+	private static String lastLanguage;
+	private static boolean lastCustomNameIsAtlas;
+
+	// Fix: the creative atlas is named by translation key, so in other languages its name didn't contain "Antique Atlas"
+	// and it stopped working; a book renamed to the translated name (as the item's hint says) didn't work either.
+	// Also runs per frame (item model predicate) and per inventory slot, so it only builds strings when the name changes.
 	public static boolean isHandheldAtlas(ItemStack stack) {
-		return stack.is(Items.BOOK) && ATLAS_NAMES.stream().anyMatch(n -> stack.getHoverName().getString().toLowerCase().contains(n.toLowerCase()));
+		if (!stack.is(Items.BOOK)) return false;
+		Component customName = stack.get(DataComponents.CUSTOM_NAME);
+		if (customName != null) return isAtlasName(customName);
+		Component itemName = stack.get(DataComponents.ITEM_NAME);
+		return itemName != null && itemName.getContents() instanceof TranslatableContents translatable && translatable.getKey().equals(ATLAS_KEY);
+	}
+
+	private static boolean isAtlasName(Component name) {
+		String language = Minecraft.getInstance().getLanguageManager().getSelected();
+		if (name == lastCustomName && language.equals(lastLanguage)) return lastCustomNameIsAtlas;
+		boolean atlas;
+		if (name.getContents() instanceof TranslatableContents translatable && translatable.getKey().equals(ATLAS_KEY)) {
+			atlas = true;
+		} else {
+			String text = name.getString().toLowerCase(Locale.ROOT);
+			String translated = I18n.get(ATLAS_KEY).toLowerCase(Locale.ROOT);
+			atlas = text.contains(translated) || ATLAS_NAMES.stream().anyMatch(n -> text.contains(n.toLowerCase(Locale.ROOT)));
+		}
+		lastCustomName = name;
+		lastLanguage = language;
+		lastCustomNameIsAtlas = atlas;
+		return atlas;
 	}
 
 	public static boolean hasHandheldAtlas(Player player) {

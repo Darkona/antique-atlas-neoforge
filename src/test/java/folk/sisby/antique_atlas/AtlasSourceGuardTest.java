@@ -140,4 +140,15 @@ class AtlasSourceGuardTest {
 		tooltip = tooltip.substring(0, tooltip.indexOf("context.pose().popPose();"));
 		assertFalse(tooltip.contains("return;"), "a return between pushPose and popPose leaks the pose");
 	}
+
+	@Test
+	@DisplayName("The atlas is recognised by its translation key, and the per-frame check builds no strings")
+	void atlasNameTranslated() throws IOException {
+		String src = read("AntiqueAtlas.java");
+		String method = src.substring(src.indexOf("public static boolean isHandheldAtlas(ItemStack stack) {"));
+		method = method.substring(0, method.indexOf("\n\t}"));
+		assertTrue(method.contains("DataComponents.ITEM_NAME") && method.contains("ATLAS_KEY"), "the creative atlas is named by translation key");
+		assertFalse(method.contains("getHoverName()") || method.contains("toLowerCase") || method.contains("stream()"), "no strings per frame");
+		assertTrue(src.contains("I18n.get(ATLAS_KEY)"), "a book renamed to the translated name is an atlas");
+	}
 }
