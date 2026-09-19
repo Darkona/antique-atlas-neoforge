@@ -43,5 +43,20 @@
 	"gui.antique_atlas.marker.death.euphemisms.verb.10": "Done In",
 	"item.antique_atlas.atlas": "Antique Atlas",
 	"item.antique_atlas.atlas.lore": "Displays your surroundings when held.",
-	"item.antique_atlas.atlas.hint": "Obtainable in survival by renaming a book \"%s\"."
+	"item.antique_atlas.atlas.hint": "Obtainable in survival by renaming a book \"%s\".",
+	"antique_atlas.configuration.title": "Antique Atlas",
+	"antique_atlas.configuration.fullscreen": "Fullscreen",
+	"antique_atlas.configuration.requireItem": "Require the atlas item",
+	"antique_atlas.configuration.keepZoom": "Keep zoom",
+	"antique_atlas.configuration.keepOffset": "Keep position",
+	"antique_atlas.configuration.graveStyle": "Grave style",
+	"antique_atlas.configuration.maxTileChunks": "Max chunks per tile",
+	"antique_atlas.configuration.maxTilePixels": "Max tile size (pixels)",
+	"antique_atlas.configuration.mapScale": "Map scale",
+	"antique_atlas.configuration.chunkTickLimit": "Chunks tiled per tick",
+	"antique_atlas.configuration.fallbackFailHandling": "Missing tile handling",
+	"antique_atlas.configuration.emptyHandling": "Unexplored area",
+	"antique_atlas.configuration.structureMarkers": "Structure markers",
+	"antique_atlas.configuration.dimensions": "Dimensions",
+	"antique_atlas.configuration.scales": "Dimension scales"
 }

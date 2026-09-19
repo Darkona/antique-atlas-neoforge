@@ -116,4 +116,10 @@ class AtlasSourceGuardTest {
 		String renderer = read("gui/AtlasRenderer.java");
 		assertTrue(renderer.contains("if (batch != null) batch.flush();"), "region fills share the Tesselator: flush the batch first");
 	}
+
+	@Test
+	@DisplayName("The mod list's Config button opens NeoForge's config screen")
+	void configScreenRegistered() throws IOException {
+		assertTrue(read("AntiqueAtlas.java").contains("registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new)"));
+	}
 }

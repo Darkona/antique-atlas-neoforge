@@ -45,6 +45,8 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.gui.ConfigurationScreen;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
@@ -137,6 +139,8 @@ public class AntiqueAtlas {
 
 	public AntiqueAtlas(IEventBus modBus, ModContainer container) {
 		container.registerConfig(ModConfig.Type.CLIENT, AntiqueAtlasConfig.SPEC, "antique-atlas.toml");
+		// Fix: the mod list's Config button was disabled; NeoForge builds the screen from the config spec.
+		container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
 		modBus.addListener(ModConfigEvent.Loading.class, e -> onConfig(e.getConfig()));
 		modBus.addListener(ModConfigEvent.Reloading.class, e -> onConfig(e.getConfig()));
 		AntiqueAtlasKeybindings.init(modBus);
