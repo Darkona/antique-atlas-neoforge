@@ -13,11 +13,23 @@ here until the date listed.
 - The configuration file uses NeoForge's format; `structureMarkers` and dimension `scales` are lists of `"name=value"`
   entries.
 
+### Configuration
+- The mod list's Config button opens a config screen with every option; it used to be disabled. (antique-atlas#390,
+  antique-atlas#372)
+
 ### Map drawing
+- Reloading resources (F3+T) redraws the atlas with the new textures and tile rules; it used to keep the old ones until
+  you rejoined. (antique-atlas#243)
+- The book frame's soft edge over the map is translucent again. (antique-atlas#358)
+- Hovering your own player icon no longer shifts everything drawn after it in that frame.
 - The map updates when terrain changes, instead of keeping the old drawing until you rejoin.
 - A dimension explored along a single row of chunks is no longer hidden from the dimension list.
 - The first tile of the drawn area, and the last row and column when zoomed out, were only half drawn (inside the
   margin around the visible map).
+
+### Handheld atlas
+- A book named with the translated atlas name, and the creative atlas in any language, work as an atlas; only the
+  English name worked before. (antique-atlas#367)
 
 ### Markers
 - The list of your markers keeps the same order every session.
