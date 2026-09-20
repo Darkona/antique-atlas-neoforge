@@ -7,6 +7,7 @@ import folk.sisby.antique_atlas.reloader.MarkerTextures;
 import folk.sisby.antique_atlas.reloader.StructureTileProviders;
 import folk.sisby.antique_atlas.reloader.TileTextures;
 import folk.sisby.antique_atlas.util.Rect;
+import folk.sisby.surveyor.SurveyorExploration;
 import folk.sisby.surveyor.WorldSummary;
 import folk.sisby.surveyor.client.SurveyorClient;
 import folk.sisby.surveyor.landmark.Landmark;
@@ -37,6 +38,8 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
@@ -51,6 +54,26 @@ public class WorldAtlasData {
 
 	public static WorldAtlasData getOrCreate(ResourceKey<Level> dimension) {
 		return WORLDS.computeIfAbsent(dimension, k -> new WorldAtlasData());
+	}
+
+	/**
+	 * Fix: after a resource reload (F3+T) the atlas kept tiles and markers from the old resources until you rejoined.
+	 * Drops every dimension's tiles and markers and resolves them again from Surveyor's data. Client thread only.
+	 */
+	public static void rebuildAll() {
+		WORLDS.clear();
+		TerrainTiling.clearCaches();
+		ClientPacketListener connection = Minecraft.getInstance().getConnection();
+		if (connection == null || Minecraft.getInstance().level == null) return;
+		BiomeTileProviders.getInstance().clearFallbacks();
+		BiomeTileProviders.getInstance().registerFallbacks(connection.registryAccess().registryOrThrow(Registries.BIOME));
+		SurveyorExploration exploration = SurveyorClient.getExploration();
+		for (WorldSummary summary : SurveyorClient.getSummaries(connection).values()) {
+			WorldAtlasData data = getOrCreate(summary.dimension());
+			if (summary.terrain() != null) data.onTerrainUpdated(summary, summary.terrain().bitSet(exploration));
+			if (summary.structures() != null) data.onStructuresAdded(summary, summary.structures().keySet(exploration));
+			if (summary.landmarks() != null) data.onLandmarksAdded(summary, summary.landmarks().keySet(exploration));
+		}
 	}
 
 	public static boolean hasPendingWork() {

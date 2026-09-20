@@ -192,6 +192,7 @@ public class BiomeTileProviders extends SimpleJsonResourceReloadListener {
 	@Override
 	protected void apply(Map<ResourceLocation, JsonElement> prepared, ResourceManager manager, ProfilerFiller profiler) {
 		AntiqueAtlas.LOGGER.info("[Antique Atlas] Reloading Biome Tile Providers...");
+		tileProviders.clear(); // Fix: providers removed from a resource pack stayed after a reload
 		Map<ResourceLocation, TileTexture> textures = TileTextures.getInstance().getTextures();
 		Set<TileTexture> unusedTextures = new HashSet<>(textures.values().stream().filter(t -> t.id().getPath().startsWith("biome")).toList());
 		Map<ResourceLocation, ResourceLocation> providerParents = new HashMap<>();

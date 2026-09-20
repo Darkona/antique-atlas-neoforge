@@ -33,6 +33,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
@@ -152,6 +153,7 @@ public class AntiqueAtlas {
 	}
 
 	private static long clientTicks = 0;
+	private static volatile boolean rebuildPending = false;
 	private static long friendsTick = -1;
 	private static ClientPacketListener friendsConnection;
 	private static Map<UUID, PlayerSummary> friendsMemo = Map.of();
@@ -181,6 +183,8 @@ public class AntiqueAtlas {
 			e.registerReloadListener(MarkerTextures.getInstance());
 			e.registerReloadListener(StructureTileProviders.getInstance());
 			e.registerReloadListener(BiomeTileProviders.getInstance());
+			// Fix (F3+T): rebuild the atlas from the reloaded resources on the next client tick, after every listener applied.
+			e.registerReloadListener((ResourceManagerReloadListener) manager -> rebuildPending = true);
 		});
 		modBus.addListener(BuildCreativeModeTabContentsEvent.class, e -> {
 			if (e.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) e.insertAfter(Items.MAP.getDefaultInstance(), getHandheldAtlas(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
@@ -222,7 +226,13 @@ public class AntiqueAtlas {
 			if (e.getUpdateCause() == TagsUpdatedEvent.UpdateCause.CLIENT_PACKET_RECEIVED) BiomeTileProviders.getInstance().registerFallbacks(e.getRegistryAccess().registryOrThrow(Registries.BIOME));
 		});
 		NeoForge.EVENT_BUS.addListener(ClientPlayerNetworkEvent.LoggingOut.class, e -> resetSession());
-		NeoForge.EVENT_BUS.addListener(ClientTickEvent.Post.class, e -> clientTicks++);
+		NeoForge.EVENT_BUS.addListener(ClientTickEvent.Post.class, e -> {
+			clientTicks++;
+			if (rebuildPending) {
+				rebuildPending = false;
+				WorldAtlasData.rebuildAll();
+			}
+		});
 
 		WorldSummary.enableTerrain();
 		WorldSummary.enableStructures();

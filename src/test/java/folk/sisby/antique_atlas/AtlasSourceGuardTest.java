@@ -104,7 +104,8 @@ class AtlasSourceGuardTest {
 		String method = src.substring(src.indexOf("public static Map<UUID, PlayerSummary> getOrderedFriends()"));
 		method = method.substring(0, method.indexOf("\n\t}"));
 		assertTrue(method.contains("friendsTick == clientTicks"), "getOrderedFriends must return the tick's memo");
-		assertTrue(src.contains("ClientTickEvent.Post.class, e -> clientTicks++"), "the tick counter must advance per client tick");
+		String tick = src.substring(src.indexOf("ClientTickEvent.Post.class, e ->"));
+		assertTrue(tick.substring(0, tick.indexOf(");")).contains("clientTicks++"), "the tick counter must advance per client tick");
 	}
 
 	@Test
@@ -150,5 +151,22 @@ class AtlasSourceGuardTest {
 		assertTrue(method.contains("DataComponents.ITEM_NAME") && method.contains("ATLAS_KEY"), "the creative atlas is named by translation key");
 		assertFalse(method.contains("getHoverName()") || method.contains("toLowerCase") || method.contains("stream()"), "no strings per frame");
 		assertTrue(src.contains("I18n.get(ATLAS_KEY)"), "a book renamed to the translated name is an atlas");
+	}
+
+	@Test
+	@DisplayName("A resource reload (F3+T) rebuilds the atlas and drops stale providers")
+	void reloadRebuilds() throws IOException {
+		String main = read("AntiqueAtlas.java");
+		assertTrue(main.contains("(ResourceManagerReloadListener) manager -> rebuildPending = true"), "a reload must request a rebuild");
+		assertTrue(main.contains("WorldAtlasData.rebuildAll();"), "the rebuild runs on the client tick");
+		String rebuild = read("WorldAtlasData.java");
+		rebuild = rebuild.substring(rebuild.indexOf("public static void rebuildAll()"));
+		rebuild = rebuild.substring(0, rebuild.indexOf("\n\t}"));
+		for (String step : new String[]{"WORLDS.clear()", "TerrainTiling.clearCaches()", "registerFallbacks(", "onTerrainUpdated(", "onStructuresAdded(", "onLandmarksAdded("}) {
+			assertTrue(rebuild.contains(step), "rebuildAll() must call " + step);
+		}
+		String providers = read("reloader/BiomeTileProviders.java");
+		providers = providers.substring(providers.indexOf("protected void apply("));
+		assertTrue(providers.contains("tileProviders.clear()"), "providers removed from a pack must go");
 	}
 }
