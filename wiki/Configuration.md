@@ -1,6 +1,6 @@
 # Configuration
 
-Options live in `config/antique-atlas.toml`. What is shared with other players is configured in Surveyor instead — see [Surveyor's configuration](https://github.com/Darkona/surveyor-neoforge/wiki/Configuration).
+Options live in `config/antique-atlas.toml`; you can also edit them in game from the mod list (Mods → Antique Atlas → Config). What is shared with other players is configured in Surveyor instead — see [Surveyor's configuration](https://github.com/Darkona/surveyor-neoforge/wiki/Configuration).
 
 ## The screen
 

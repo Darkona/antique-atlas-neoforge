@@ -27,14 +27,17 @@ On the right edge of the book:
 
 On the left edge is the list of your markers: click one to jump to it.
 
+**Middle-click** any marker to copy its coordinates (`x y z`) to the clipboard.
+
 ![Adding a marker](images/atlas-marker-editor.png)
 
 ## The atlas in your hands
 
-An atlas is a **book named `Antique Atlas`**: rename a book at an anvil, or take one from the Tools & Utilities creative tab.
+An atlas is a **book named `Antique Atlas`**, or its name in your game's language: rename a book at an anvil, or take one from the Tools & Utilities creative tab.
 
 - Hold it to see the map around you, like a vanilla map — with both hands when your other hand is empty.
 - Right-click it to open the full atlas.
+- **Sneak and right-click** to zoom the handheld map out: 1, 2 or 4 chunks per tile.
 
 ![Holding the atlas](images/atlas-in-hand.png)
 

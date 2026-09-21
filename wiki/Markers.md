@@ -12,7 +12,7 @@ Markers are Surveyor waypoints: on a server they are shared with your group, and
 |---|---|
 | **Structures** | Villages, monuments, mansions and other structures, once discovered. Which ones get a marker comes from resource packs. |
 | **Nether portals** | Every portal you light. |
-| **Graves** | Where you died, with the day number. |
+| **Graves** | Where you or a friend died, with the day number; other players' graves show their name. |
 | **Lodestones** | Every lodestone placed. |
 
 Portals, graves and lodestones are Surveyor features — they can be turned off in [Surveyor's configuration](https://github.com/Darkona/surveyor-neoforge/wiki/Configuration).
