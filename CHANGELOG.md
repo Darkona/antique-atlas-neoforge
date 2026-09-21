@@ -28,10 +28,13 @@ here until the date listed.
   margin around the visible map).
 
 ### Handheld atlas
+- Sneak and use the atlas book to zoom the handheld map out: 1, 2 or 4 chunks per tile. (antique-atlas#353)
 - A book named with the translated atlas name, and the creative atlas in any language, work as an atlas; only the
   English name worked before. (antique-atlas#367)
 
 ### Markers
+- Middle-click a marker to copy its coordinates. (antique-atlas#169)
+- Other players' graves show their owner's name. (antique-atlas#342)
 - The list of your markers keeps the same order every session.
 - Pinned markers at the edge of the map fade the same way on all four sides.
 
