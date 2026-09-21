@@ -29,7 +29,7 @@ class AtlasSourceGuardTest {
 			count++;
 			assertTrue(registration.group().contains("onClientThread("), "listener touches atlas state off the client thread:\n" + registration.group());
 		}
-		assertEquals(4, count, "expected the four Surveyor client listeners");
+		assertEquals(5, count, "expected the five Surveyor client listeners");
 	}
 
 	@Test
@@ -178,5 +178,12 @@ class AtlasSourceGuardTest {
 		assertTrue(screen.contains("\"gui.antique_atlas.marker.death.owner\""), "other players' graves name their owner");
 		assertTrue(read("gui/HandheldAtlasRenderer.java").contains("AntiqueAtlas.handheldZoom()"));
 		assertTrue(read("AntiqueAtlas.java").contains("isShiftKeyDown() && isHandheldAtlas("));
+	}
+
+	@Test
+	@DisplayName("A share group change rebuilds the atlas; a tile without terrain is removed")
+	void groupChangeRebuilds() throws IOException {
+		assertTrue(read("AntiqueAtlas.java").contains("SurveyorClientEvents.Register.explorationReset(id(\"world_data\"), () -> onClientThread(WorldAtlasData::rebuildAll));"));
+		assertTrue(read("WorldAtlasData.java").contains("biomeTiles.remove(pos.toLong())"), "tick must drop tiles whose chunk has no terrain any more");
 	}
 }

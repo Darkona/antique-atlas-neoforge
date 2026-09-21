@@ -158,6 +158,9 @@ public class WorldAtlasData {
 				biomeTiles.put(pos.toLong(), tile.left().getTexture(pos, tile.right()));
 				debugBiomes.put(pos, tile.left());
 				debugBiomePredicates.put(pos, tile.right() == null ? null : tile.right().getName());
+			} else if (biomeTiles.remove(pos.toLong()) != null) { // the chunk no longer has terrain to draw
+				debugBiomes.remove(pos);
+				debugBiomePredicates.remove(pos);
 			}
 		}
 		if (!isFinished && terrainDeque.isEmpty()) {

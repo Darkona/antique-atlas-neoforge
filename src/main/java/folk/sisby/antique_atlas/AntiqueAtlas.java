@@ -229,6 +229,8 @@ public class AntiqueAtlas {
 			Multimap<UUID, ResourceLocation> landmarks = ImmutableMultimap.copyOf(k);
 			onClientThread(() -> WorldAtlasData.getOrCreate(s.dimension()).onLandmarksRemoved(s, landmarks));
 		});
+		// Fix: after a share group change, tiles the new group hasn't explored stayed on the map.
+		SurveyorClientEvents.Register.explorationReset(id("world_data"), () -> onClientThread(WorldAtlasData::rebuildAll));
 		NeoForge.EVENT_BUS.addListener(LevelTickEvent.Post.class, e -> {
 			if (e.getLevel() instanceof ClientLevel && WorldAtlasData.hasPendingWork()) SurveyorClient.getSummaries(Minecraft.getInstance().getConnection()).values().forEach(s -> WorldAtlasData.getOrCreate(s.dimension()).tick(s));
 		});
