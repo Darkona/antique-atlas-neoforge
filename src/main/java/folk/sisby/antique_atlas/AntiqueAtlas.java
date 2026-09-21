@@ -142,6 +142,10 @@ public class AntiqueAtlas {
 		return atlas;
 	}
 
+	public static int handheldZoom() {
+		return handheldZoom;
+	}
+
 	public static boolean hasHandheldAtlas(Player player) {
 		if (isHandheldAtlas(player.getOffhandItem())) return true;
 		for (ItemStack itemStack : player.getInventory().items) {
@@ -152,6 +156,7 @@ public class AntiqueAtlas {
 		return false;
 	}
 
+	private static int handheldZoom = 1;
 	private static long clientTicks = 0;
 	private static volatile boolean rebuildPending = false;
 	private static long friendsTick = -1;
@@ -191,7 +196,13 @@ public class AntiqueAtlas {
 		});
 		modBus.addListener(ModelEvent.RegisterAdditional.class, e -> e.register(ATLAS_MODEL));
 		NeoForge.EVENT_BUS.addListener(PlayerInteractEvent.RightClickItem.class, e -> {
-			if (e.getLevel().isClientSide() && isHandheldAtlas(e.getItemStack()) && openAtlasScreen() != null) {
+			if (e.getLevel().isClientSide() && e.getEntity().isShiftKeyDown() && isHandheldAtlas(e.getItemStack())) {
+				// Sneak + use zooms the handheld atlas out: 1, 2, 4 chunks per tile
+				handheldZoom = handheldZoom >= 4 ? 1 : handheldZoom * 2;
+				e.getEntity().displayClientMessage(Component.translatable("gui.antique_atlas.handheldZoom", handheldZoom), true);
+				e.setCancellationResult(InteractionResult.SUCCESS);
+				e.setCanceled(true);
+			} else if (e.getLevel().isClientSide() && isHandheldAtlas(e.getItemStack()) && openAtlasScreen() != null) {
 				e.setCancellationResult(InteractionResult.SUCCESS);
 				e.setCanceled(true);
 			}

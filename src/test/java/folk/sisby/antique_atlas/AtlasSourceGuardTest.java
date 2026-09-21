@@ -169,4 +169,14 @@ class AtlasSourceGuardTest {
 		providers = providers.substring(providers.indexOf("protected void apply("));
 		assertTrue(providers.contains("tileProviders.clear()"), "providers removed from a pack must go");
 	}
+
+	@Test
+	@DisplayName("Middle-click copies a marker's coordinates; graves show their owner; sneak-use zooms the handheld atlas")
+	void smallFeatures() throws IOException {
+		String screen = read("gui/AtlasScreen.java");
+		assertTrue(screen.contains("GLFW.GLFW_MOUSE_BUTTON_MIDDLE") && screen.contains("keyboardHandler.setClipboard(coordinates)"));
+		assertTrue(screen.contains("\"gui.antique_atlas.marker.death.owner\""), "other players' graves name their owner");
+		assertTrue(read("gui/HandheldAtlasRenderer.java").contains("AntiqueAtlas.handheldZoom()"));
+		assertTrue(read("AntiqueAtlas.java").contains("isShiftKeyDown() && isHandheldAtlas("));
+	}
 }

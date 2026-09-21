@@ -350,6 +350,15 @@ public class AtlasScreen extends Component implements AtlasRenderer {
 		}
 		if (super.mouseClicked(mouseX, mouseY, mouseState)) return true;
 
+		// Middle-click on a marker copies its coordinates
+		if (hoveredLandmark != null && hoveredLandmark.contains(LandmarkComponentTypes.POS) && mouseState == GLFW.GLFW_MOUSE_BUTTON_MIDDLE) {
+			BlockPos pos = hoveredLandmark.get(LandmarkComponentTypes.POS);
+			String coordinates = pos.getX() + " " + pos.getY() + " " + pos.getZ();
+			Minecraft.getInstance().keyboardHandler.setClipboard(coordinates);
+			player.displayClientMessage(net.minecraft.network.chat.Component.translatable("gui.antique_atlas.copiedCoordinates", coordinates), true);
+			return true;
+		}
+
 		// If clicked on the map, start dragging
 		if (state.is(NORMAL) && hoveredLandmark != null && hoveredLandmark.contains(LandmarkComponentTypes.POS) && !hoveredLandmark.owner().equals(WorldLandmarks.GLOBAL) && SurveyorClient.canModify(hoveredLandmark.owner()) && mouseState == GLFW.GLFW_MOUSE_BUTTON_2) {
 			markerModal.setMarkerData(SurveyorClient.tryGetSummary(dim), player.getCommandSenderWorld().registryAccess(), hoveredLandmark);
@@ -852,6 +861,10 @@ public class AtlasScreen extends Component implements AtlasRenderer {
 		context.pose().translate(getMouseX(), getMouseY(), 0);
 		if (hoveredLandmark != null) {
 			net.minecraft.network.chat.Component name = hoveredLandmark.get(LandmarkComponentTypes.NAME);
+			if (name != null && hoveredLandmark.id().getPath().startsWith("grave") && !hoveredLandmark.owner().equals(WorldLandmarks.GLOBAL) && !hoveredLandmark.owner().equals(SurveyorClient.getClientUuid())) {
+				PlayerSummary owner = AntiqueAtlas.getOrderedFriends().get(hoveredLandmark.owner());
+				if (owner != null) name = net.minecraft.network.chat.Component.translatable("gui.antique_atlas.marker.death.owner", owner.username(), name);
+			}
 			if (name != null && !name.getString().isEmpty()) {
 				context.renderComponentTooltip(font, Stream.concat(Stream.of(name), hoveredLandmark.getOrDefault(LandmarkComponentTypes.LORE, new ArrayList<net.minecraft.network.chat.Component>()).stream().map(t -> t.copy().withStyle(ChatFormatting.GRAY))).toList(), 0, 0);
 			}

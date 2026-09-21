@@ -58,5 +58,8 @@
 	"antique_atlas.configuration.emptyHandling": "Unexplored area",
 	"antique_atlas.configuration.structureMarkers": "Structure markers",
 	"antique_atlas.configuration.dimensions": "Dimensions",
-	"antique_atlas.configuration.scales": "Dimension scales"
+	"antique_atlas.configuration.scales": "Dimension scales",
+	"gui.antique_atlas.copiedCoordinates": "Copied coordinates: %s",
+	"gui.antique_atlas.marker.death.owner": "%s: %s",
+	"gui.antique_atlas.handheldZoom": "Handheld atlas: %s chunks per tile"
 }

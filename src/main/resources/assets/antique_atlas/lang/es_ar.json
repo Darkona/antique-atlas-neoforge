@@ -43,5 +43,8 @@
 	"gui.antique_atlas.marker.death.euphemisms.verb.10": "Acabado",
     "item.antique_atlas.atlas": "Atlas antiguo",
     "item.antique_atlas.atlas.lore": "Muestra tu entorno cuando lo sostenés.",
-    "item.antique_atlas.atlas.hint": "Obtenible en supervivencia renombrando un libro \"%s\"."
+    "item.antique_atlas.atlas.hint": "Obtenible en supervivencia renombrando un libro \"%s\".",
+	"gui.antique_atlas.copiedCoordinates": "Coordenadas copiadas: %s",
+	"gui.antique_atlas.marker.death.owner": "%s: %s",
+	"gui.antique_atlas.handheldZoom": "Atlas en mano: %s chunks por casilla"
 }

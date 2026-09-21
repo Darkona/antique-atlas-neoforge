@@ -10,5 +10,8 @@
 	"structure.type.minecraft.ocean_monument": "Monumento oceánico",
 	"structure.type.minecraft.woodland_mansion": "Mansión del bosque",
 	"key.antique_atlas.open": "Abrir atlas",
-	"key.antique_atlas.category": "Atlas Antiguo"
+	"key.antique_atlas.category": "Atlas Antiguo",
+	"gui.antique_atlas.copiedCoordinates": "Coordenadas copiadas: %s",
+	"gui.antique_atlas.marker.death.owner": "%s: %s",
+	"gui.antique_atlas.handheldZoom": "Atlas en mano: %s chunks por casilla"
 }

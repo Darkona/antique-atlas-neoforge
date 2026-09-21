@@ -30,7 +30,7 @@ public record HandheldAtlasRenderer(int bookX, int bookY, int bookWidth, int boo
 			DEFAULT_BOOK_WIDTH - MAP_BORDER_WIDTH * 2,
 			DEFAULT_BOOK_HEIGHT - MAP_BORDER_HEIGHT * 2,
 			16,
-			1,
+			AntiqueAtlas.handheldZoom(),
 			1,
 			-player.getBlockX(),
 			-player.getBlockZ(),
