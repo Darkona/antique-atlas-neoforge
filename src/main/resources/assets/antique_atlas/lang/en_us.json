@@ -61,5 +61,6 @@
 	"antique_atlas.configuration.scales": "Dimension scales",
 	"gui.antique_atlas.copiedCoordinates": "Copied coordinates: %s",
 	"gui.antique_atlas.marker.death.owner": "%s: %s",
-	"gui.antique_atlas.handheldZoom": "Handheld atlas: %s chunks per tile"
+	"gui.antique_atlas.handheldZoom": "Handheld atlas: %s chunks per tile",
+	"antique_atlas.configuration.pickStructureMarkers": "Structure icons for your markers"
 }

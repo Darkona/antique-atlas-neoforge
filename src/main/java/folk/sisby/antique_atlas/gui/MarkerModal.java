@@ -1,5 +1,6 @@
 package folk.sisby.antique_atlas.gui;
 
+import folk.sisby.antique_atlas.AntiqueAtlas;
 import folk.sisby.antique_atlas.MarkerTexture;
 import folk.sisby.antique_atlas.WorldAtlasData;
 import folk.sisby.antique_atlas.gui.core.Component;
@@ -8,6 +9,7 @@ import folk.sisby.antique_atlas.gui.core.ToggleButtonRadioGroup;
 import folk.sisby.antique_atlas.reloader.MarkerTextures;
 import folk.sisby.antique_atlas.util.ColorUtil;
 import folk.sisby.surveyor.WorldSummary;
+import folk.sisby.surveyor.client.SurveyorClient;
 import folk.sisby.surveyor.landmark.Landmark;
 import folk.sisby.surveyor.landmark.WorldLandmarks;
 import folk.sisby.surveyor.landmark.component.LandmarkComponentTypes;
@@ -63,13 +65,26 @@ public class MarkerModal extends Component {
 	public MarkerModal() {
 	}
 
+	// Structure icons are offered too when configured (antique-atlas#171): on servers without Surveyor, structures are
+	// never discovered for you, so marking them by hand is the only way.
+	static boolean isPickable(MarkerTexture texture) {
+		String path = texture.keyId().getPath();
+		if (path.startsWith("custom/")) return true;
+		if (!path.startsWith("structure/")) return false;
+		return switch (AntiqueAtlas.CONFIG.pickStructureMarkers) {
+			case ON -> true;
+			case OFF -> false;
+			case AUTO -> !SurveyorClient.serverSupported();
+		};
+	}
+
 	void setMarkerData(WorldSummary summary, RegistryAccess manager, Landmark baseLandmark) {
 		this.summary = summary;
 		this.manager = manager;
 		this.baseLandmark = baseLandmark;
 		this.selectedColor = Arrays.stream(DyeColor.values()).filter(d -> baseLandmark.contains(LandmarkComponentTypes.COLOR) && d.getTextureDiffuseColor() == baseLandmark.get(LandmarkComponentTypes.COLOR)).findAny().orElse(DyeColor.WHITE);
 		this.selectedTexture = MarkerTextures.getInstance().fromLandmark(baseLandmark);
-		if (!selectedTexture.keyId().getPath().startsWith("custom/")) selectedTexture = textureButtons.keySet().stream().findFirst().orElse(MarkerTexture.DEFAULT);
+		if (!isPickable(selectedTexture)) selectedTexture = textureButtons.keySet().stream().findFirst().orElse(MarkerTexture.DEFAULT);
 		if (colorRadioGroup != null) updateSelected();
 	}
 
@@ -119,7 +134,7 @@ public class MarkerModal extends Component {
 		textureScrollBox = new ScrollBoxComponent(false, (TexturePreviewButton.FRAME_SIZE + TYPE_SPACING));
 		this.addChild(textureScrollBox);
 
-		int typeCount = (int) MarkerTextures.getInstance().asMap().values().stream().filter(t -> t.keyId().getPath().startsWith("custom/")).count();
+		int typeCount = (int) MarkerTextures.getInstance().asMap().values().stream().filter(MarkerModal::isPickable).count();
 		int typesOnScreen = Math.min(typeCount, 7);
 		int typeScrollWidth = typesOnScreen * (TexturePreviewButton.FRAME_SIZE + TYPE_SPACING) - TYPE_SPACING;
 		textureScrollBox.getViewport().setSize(typeScrollWidth, TexturePreviewButton.FRAME_SIZE + TYPE_SPACING);
@@ -134,7 +149,7 @@ public class MarkerModal extends Component {
 		});
 		int contentX = 0;
 		for (MarkerTexture texture : MarkerTextures.getInstance().asMap().values()) {
-			if (!texture.keyId().getPath().startsWith("custom/")) continue;
+			if (!isPickable(texture)) continue;
 			if (selectedTexture == MarkerTexture.DEFAULT) selectedTexture = texture;
 			TexturePreviewButton<MarkerTexture> markerGui = new MarkerPreviewButton(texture, ColorUtil.componentsFromRgb(selectedColor.getFireworkColor()));
 			textureButtons.put(texture, markerGui);

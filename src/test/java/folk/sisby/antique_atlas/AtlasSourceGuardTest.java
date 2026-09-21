@@ -186,4 +186,12 @@ class AtlasSourceGuardTest {
 		assertTrue(read("AntiqueAtlas.java").contains("SurveyorClientEvents.Register.explorationReset(id(\"world_data\"), () -> onClientThread(WorldAtlasData::rebuildAll));"));
 		assertTrue(read("WorldAtlasData.java").contains("biomeTiles.remove(pos.toLong())"), "tick must drop tiles whose chunk has no terrain any more");
 	}
+
+	@Test
+	@DisplayName("The marker picker offers structure icons per config, and every check uses the same rule")
+	void structureIconsPickable() throws IOException {
+		String src = read("gui/MarkerModal.java");
+		assertTrue(src.contains("static boolean isPickable(MarkerTexture texture)") && src.contains("AntiqueAtlas.CONFIG.pickStructureMarkers"));
+		assertFalse(src.contains("startsWith(\"custom/\")) continue") || src.contains("filter(t -> t.keyId().getPath().startsWith(\"custom/\"))"), "a check bypasses isPickable");
+	}
 }
