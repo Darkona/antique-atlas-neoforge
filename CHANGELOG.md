@@ -18,6 +18,8 @@ here until the date listed.
   antique-atlas#372)
 
 ### Map drawing
+- Joining another share group redraws the map from the new group's exploration; the old group's areas used to stay.
+  (antique-atlas#343)
 - Reloading resources (F3+T) redraws the atlas with the new textures and tile rules; it used to keep the old ones until
   you rejoined. (antique-atlas#243)
 - The book frame's soft edge over the map is translucent again. (antique-atlas#358)
