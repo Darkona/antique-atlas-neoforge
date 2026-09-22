@@ -1,0 +1,6 @@
+{
+	"tile": "antique_atlas:feature/swamp_water",
+	"priority": 4,
+	"water": true,
+	"biomes": ["#c:swamp"]
+}

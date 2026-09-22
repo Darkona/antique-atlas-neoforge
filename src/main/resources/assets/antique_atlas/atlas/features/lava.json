@@ -1,0 +1,5 @@
+{
+	"tile": "antique_atlas:feature/lava",
+	"priority": 6,
+	"blocks": ["minecraft:lava"]
+}

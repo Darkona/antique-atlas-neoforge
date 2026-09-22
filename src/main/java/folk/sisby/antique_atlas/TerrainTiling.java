@@ -1,27 +1,29 @@
 package folk.sisby.antique_atlas;
 
 import folk.sisby.antique_atlas.reloader.BiomeTileProviders;
+import folk.sisby.antique_atlas.reloader.FeatureRules;
 import folk.sisby.surveyor.WorldSummary;
 import folk.sisby.surveyor.terrain.ChunkSummary;
 import folk.sisby.surveyor.terrain.LayerSummary;
 import folk.sisby.surveyor.terrain.WorldTerrain;
 import folk.sisby.surveyor.util.RegistryPalette;
 import it.unimi.dsi.fastutil.Pair;
-import folk.sisby.antique_atlas.util.ConventionalBiomeTagsV1;
 import net.minecraft.core.Holder;
 import net.minecraft.core.IdMap;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BiomeTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
 
-import it.unimi.dsi.fastutil.objects.Reference2ByteOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2LongOpenHashMap;
 import java.util.List;
 
 /**
@@ -30,9 +32,6 @@ import java.util.List;
 public class TerrainTiling {
 	public static final int EMPTY_PRIORITY = 16;
 	public static final int RAVINE_PRIORITY = 12;
-	public static final int LAVA_PRIORITY = 6;
-	public static final int WATER_PRIORITY = 4;
-	public static final int ICE_PRIORITY = 3;
 	public static final int BEACH_PRIORITY = 3;
 
 	public static final List<ResourceLocation> CUSTOM_TILES = List.of(
@@ -49,28 +48,63 @@ public class TerrainTiling {
 
 	public static final int NETHER_SCAN_HEIGHT = 50;
 	private static final Reference2IntOpenHashMap<Biome> PRIORITY_CACHE = new Reference2IntOpenHashMap<>();
-	private static final Reference2ByteOpenHashMap<Biome> SWAMP_CACHE = new Reference2ByteOpenHashMap<>();
-	private static final byte UNKNOWN = 0, NOT_SWAMP = 1, SWAMP = 2;
+	// Feature rule masks per block and biome, for the rule set they were computed from
+	private static final Reference2LongOpenHashMap<Block> BLOCK_RULES_CACHE = new Reference2LongOpenHashMap<>();
+	private static final Reference2LongOpenHashMap<Biome> BIOME_RULES_CACHE = new Reference2LongOpenHashMap<>();
+	private static FeatureRuleSet cachedRules;
 	private static final int SEA_LEVEL = 63;
 
 	private static final int IDX_BEDROCK_ROOF = CUSTOM_TILES.indexOf(FeatureTiles.BEDROCK_ROOF);
 	private static final int IDX_EMPTY = CUSTOM_TILES.indexOf(FeatureTiles.EMPTY);
 	private static final int IDX_END_VOID = CUSTOM_TILES.indexOf(FeatureTiles.END_VOID);
-	private static final int IDX_WATER = CUSTOM_TILES.indexOf(FeatureTiles.WATER);
-	private static final int IDX_ICE = CUSTOM_TILES.indexOf(FeatureTiles.ICE);
 	private static final int IDX_RAVINE = CUSTOM_TILES.indexOf(FeatureTiles.TILE_RAVINE);
-	private static final int IDX_SWAMP_WATER = CUSTOM_TILES.indexOf(FeatureTiles.SWAMP_WATER);
-	private static final int IDX_LAVA = CUSTOM_TILES.indexOf(FeatureTiles.TILE_LAVA);
 	private static final int IDX_LAVA_SHORE = CUSTOM_TILES.indexOf(FeatureTiles.TILE_LAVA_SHORE);
 	private static final TileElevation[] ELEVATIONS = TileElevation.values();
 
 	static {
 		PRIORITY_CACHE.defaultReturnValue(-1);
+		BLOCK_RULES_CACHE.defaultReturnValue(-1L);
+		BIOME_RULES_CACHE.defaultReturnValue(-1L);
 	}
 
 	public static void clearCaches() {
 		PRIORITY_CACHE.clear();
-		SWAMP_CACHE.clear();
+		BLOCK_RULES_CACHE.clear();
+		BIOME_RULES_CACHE.clear();
+		cachedRules = null;
+	}
+
+	/**
+	 * The current feature rules; drops the cached masks when a reload replaced them.
+	 */
+	private static FeatureRuleSet featureRules() {
+		FeatureRuleSet rules = FeatureRules.getInstance().rules();
+		if (rules != cachedRules) {
+			BLOCK_RULES_CACHE.clear();
+			BIOME_RULES_CACHE.clear();
+			cachedRules = rules;
+		}
+		return rules;
+	}
+
+	private static long blockRules(FeatureRuleSet rules, Block block) {
+		long mask = BLOCK_RULES_CACHE.getLong(block);
+		if (mask == -1L) {
+			Holder<Block> holder = block.builtInRegistryHolder();
+			mask = rules.blockMask(BuiltInRegistries.BLOCK.getKey(block), tag -> holder.is(TagKey.create(Registries.BLOCK, tag)));
+			BLOCK_RULES_CACHE.put(block, mask);
+		}
+		return mask;
+	}
+
+	private static long biomeRules(FeatureRuleSet rules, Registry<Biome> biomeRegistry, Biome biome) {
+		long mask = BIOME_RULES_CACHE.getLong(biome);
+		if (mask == -1L) {
+			Holder<Biome> holder = biomeRegistry.wrapAsHolder(biome);
+			mask = rules.biomeMask(biomeRegistry.getKey(biome), tag -> holder.is(TagKey.create(Registries.BIOME, tag)));
+			BIOME_RULES_CACHE.put(biome, mask);
+		}
+		return mask;
 	}
 
 	public static int priorityForBiome(Registry<Biome> biomeRegistry, Biome biome) {
@@ -83,16 +117,7 @@ public class TerrainTiling {
 		return priority;
 	}
 
-	public static boolean isSwamp(Registry<Biome> biomeRegistry, Biome biome) {
-		byte swamp = SWAMP_CACHE.getByte(biome);
-		if (swamp == UNKNOWN) {
-			swamp = biomeRegistry.wrapAsHolder(biome).is(ConventionalBiomeTagsV1.SWAMP) ? SWAMP : NOT_SWAMP;
-			SWAMP_CACHE.put(biome, swamp);
-		}
-		return swamp == SWAMP;
-	}
-
-	public static Pair<TerrainTileProvider, TileElevation> frequencyToTexture(int[][] possibleTiles, Registry<Biome> biomeRegistry, IdMap<Biome> biomePalette) {
+	public static Pair<TerrainTileProvider, TileElevation> frequencyToTexture(int[][] possibleTiles, FeatureRuleSet rules, Registry<Biome> biomeRegistry, IdMap<Biome> biomePalette) {
 		int elevationOrdinal = -1;
 		int biomeIndex = -1;
 		int bestFrequency = 0;
@@ -106,10 +131,10 @@ public class TerrainTiling {
 			}
 		}
 		if (bestFrequency == 0) return null;
-		int customTileIndex = biomeIndex - possibleTiles[0].length + CUSTOM_TILES.size();
-		ResourceLocation providerId = customTileIndex >= 0 ? CUSTOM_TILES.get(customTileIndex) : biomeRegistry.getKey(biomePalette.byId(biomeIndex));
+		int customTileIndex = biomeIndex - possibleTiles[0].length + rules.customTileCount();
+		ResourceLocation providerId = customTileIndex >= 0 ? rules.customTile(customTileIndex) : biomeRegistry.getKey(biomePalette.byId(biomeIndex));
 		if (providerId == null) {
-			throw new RuntimeException(customTileIndex >= 0 ? "Custom tile index %s was out of bounds for size %s!".formatted(customTileIndex, CUSTOM_TILES.size()) : "Biome ID was null at index %s and instance %S!".formatted(biomeIndex, biomePalette.byId(biomeIndex)));
+			throw new RuntimeException(customTileIndex >= 0 ? "Custom tile index %s was out of bounds for size %s!".formatted(customTileIndex, rules.customTileCount()) : "Biome ID was null at index %s and instance %S!".formatted(biomeIndex, biomePalette.byId(biomeIndex)));
 		}
 		return Pair.of(BiomeTileProviders.getInstance().getTileProvider(providerId), elevationOrdinal == ELEVATIONS.length ? null : ELEVATIONS[elevationOrdinal]);
 	}
@@ -130,10 +155,11 @@ public class TerrainTiling {
 		Registry<Biome> biomeRegistry = biomePalette.registry(); // 1.21: ensures server registry is used in singleplayer
 		if (lithograph == null) return Pair.of(BiomeTileProviders.getInstance().getTileProvider(CUSTOM_TILES.get(defaultTile)), null);
 
+		FeatureRuleSet rules = featureRules();
 		int elevationSize = ELEVATIONS.length;
 		int elevationCount = elevationSize + 1;
 		int biomeCount = biomePalette.size();
-		int baseTileCount = biomeCount + CUSTOM_TILES.size();
+		int baseTileCount = biomeCount + rules.customTileCount();
 		int[][] possibleTiles = new int[elevationCount][baseTileCount];
 
 		for (int i = 0; i < lithograph.depths().length; i++) {
@@ -147,17 +173,15 @@ public class TerrainTiling {
 
 			if (checkRavines && height - SEA_LEVEL < -7) {
 				possibleTiles[elevationSize][biomeCount + IDX_RAVINE] += RAVINE_PRIORITY;
-			} else if (lithograph.waterDepths()[i] > 0) {
-				possibleTiles[elevationSize][biomeCount + (isSwamp(biomeRegistry, biome) ? IDX_SWAMP_WATER : IDX_WATER)] += WATER_PRIORITY;
-			} else if (block == Blocks.ICE) {
-				possibleTiles[elevationSize][biomeCount + IDX_ICE] += ICE_PRIORITY;
-			} else if (block == Blocks.LAVA) {
-				possibleTiles[elevationSize][biomeCount + IDX_LAVA] += LAVA_PRIORITY;
+			} else {
+				// Water, ice, lava...: see atlas/features/*.json (antique-atlas#318)
+				int rule = rules.match(lithograph.waterDepths()[i] > 0, blockRules(rules, block), biomeRules(rules, biomeRegistry, biome));
+				if (rule >= 0) possibleTiles[elevationSize][biomeCount + rules.column(rule)] += rules.priority(rule);
 			}
 			possibleTiles[TileElevation.fromBlocksAboveSea(height - SEA_LEVEL).ordinal()][lithograph.biomes()[i]] += priorityForBiome(biomeRegistry, biome);
 		}
 
-		return frequencyToTexture(possibleTiles, biomeRegistry, biomePalette);
+		return frequencyToTexture(possibleTiles, rules, biomeRegistry, biomePalette);
 	}
 
 	public static Pair<TerrainTileProvider, TileElevation> terrainToTileNether(WorldSummary summary, ChunkPos pos) {
@@ -176,10 +200,11 @@ public class TerrainTiling {
 		RegistryPalette<Block>.ValueView blockPalette = terrain.getBlockPalette(pos);
 		Registry<Biome> biomeRegistry = biomePalette.registry(); // 1.21: ensures server registry is used in singleplayer
 
+		FeatureRuleSet rules = featureRules();
 		int elevationSize = ELEVATIONS.length;
 		int elevationCount = elevationSize + 1;
 		int biomeCount = biomePalette.size();
-		int baseTileCount = biomeCount + CUSTOM_TILES.size();
+		int baseTileCount = biomeCount + rules.customTileCount();
 		int[][] possibleTiles = new int[elevationCount][baseTileCount];
 
 		if (fullLithograph == null) {
@@ -204,8 +229,10 @@ public class TerrainTiling {
 					possibleTiles[elevationSize][fullLithograph.biomes()[i]] += priorityForBiome(biomeRegistry, biome);
 				} else {
 					Block block = blockPalette.byId(lowLithograph.blocks()[i]);
-					if (block == Blocks.LAVA) { // Lava Sea
-						possibleTiles[elevationSize][biomeCount + IDX_LAVA] += LAVA_PRIORITY;
+					Biome biome = biomePalette.byId(lowLithograph.biomes()[i]);
+					int rule = rules.match(false, blockRules(rules, block), biomeRules(rules, biomeRegistry, biome));
+					if (rule >= 0) { // Lava Sea (or another feature rule)
+						possibleTiles[elevationSize][biomeCount + rules.column(rule)] += rules.priority(rule);
 					} else { // Low Floor
 						possibleTiles[elevationSize][biomeCount + IDX_LAVA_SHORE] += BEACH_PRIORITY;
 					}
@@ -213,6 +240,6 @@ public class TerrainTiling {
 			}
 		}
 
-		return frequencyToTexture(possibleTiles, biomeRegistry, biomePalette);
+		return frequencyToTexture(possibleTiles, rules, biomeRegistry, biomePalette);
 	}
 }

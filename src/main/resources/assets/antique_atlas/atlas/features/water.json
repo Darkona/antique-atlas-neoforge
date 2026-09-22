@@ -1,0 +1,5 @@
+{
+	"tile": "antique_atlas:feature/water",
+	"priority": 4,
+	"water": true
+}

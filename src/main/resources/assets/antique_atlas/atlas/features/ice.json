@@ -1,0 +1,5 @@
+{
+	"tile": "antique_atlas:feature/ice",
+	"priority": 3,
+	"blocks": ["minecraft:ice"]
+}
