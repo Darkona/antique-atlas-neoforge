@@ -194,4 +194,12 @@ class AtlasSourceGuardTest {
 		assertTrue(src.contains("static boolean isPickable(MarkerTexture texture)") && src.contains("AntiqueAtlas.CONFIG.pickStructureMarkers"));
 		assertFalse(src.contains("startsWith(\"custom/\")) continue") || src.contains("filter(t -> t.keyId().getPath().startsWith(\"custom/\"))"), "a check bypasses isPickable");
 	}
+
+	@Test
+	@DisplayName("A landmark without a texture of its own is drawn with its item's texture")
+	void itemMarkerTextures() throws IOException {
+		String src = read("reloader/MarkerTextures.java");
+		assertTrue(src.contains("fromStack(landmark.get(LandmarkComponentTypes.STACK))"));
+		assertTrue(src.contains("optionalFieldOf(\"items\")"), "resource packs can list items and tags per texture");
+	}
 }

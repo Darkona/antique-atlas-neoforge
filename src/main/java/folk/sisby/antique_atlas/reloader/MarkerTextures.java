@@ -1,20 +1,30 @@
 package folk.sisby.antique_atlas.reloader;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import folk.sisby.antique_atlas.AntiqueAtlas;
 import folk.sisby.antique_atlas.MarkerTexture;
 import folk.sisby.antique_atlas.util.CodecUtil;
 import folk.sisby.surveyor.landmark.Landmark;
+import folk.sisby.surveyor.landmark.component.LandmarkComponentTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceMetadata;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -27,6 +37,9 @@ public class MarkerTextures extends SimplePreparableReloadListener<Map<ResourceL
 	}
 
 	protected final Map<ResourceLocation, MarkerTexture> textures = new HashMap<>();
+	// antique-atlas#350: textures for landmarks that only carry an item stack (e.g. waypoints made by other mods)
+	protected final Map<ResourceLocation, MarkerTexture> itemTextures = new HashMap<>();
+	protected final List<Pair<TagKey<Item>, MarkerTexture>> tagTextures = new ArrayList<>();
 
 	public MarkerTexture get(ResourceLocation id) {
 		return textures.get(id);
@@ -48,7 +61,22 @@ public class MarkerTextures extends SimplePreparableReloadListener<Map<ResourceL
 	}
 
 	public MarkerTexture fromLandmark(Landmark landmark) {
-		return getOrDefault(minimumId(landmark.id()));
+		ResourceLocation id = minimumId(landmark.id());
+		if (id.getPath().equals("default") && landmark.contains(LandmarkComponentTypes.STACK)) { // no texture of its own
+			MarkerTexture texture = fromStack(landmark.get(LandmarkComponentTypes.STACK));
+			if (texture != null) return texture;
+		}
+		return getOrDefault(id);
+	}
+
+	public @Nullable MarkerTexture fromStack(ItemStack stack) {
+		if (stack.isEmpty()) return null;
+		MarkerTexture texture = itemTextures.get(BuiltInRegistries.ITEM.getKey(stack.getItem()));
+		if (texture != null) return texture;
+		for (Pair<TagKey<Item>, MarkerTexture> entry : tagTextures) {
+			if (stack.is(entry.getFirst())) return entry.getSecond();
+		}
+		return null;
 	}
 
 	public MarkerTexture fromLandmark(Landmark landmark, String variant) {
@@ -80,6 +108,8 @@ public class MarkerTextures extends SimplePreparableReloadListener<Map<ResourceL
 	protected void apply(Map<ResourceLocation, MarkerTextureMeta> prepared, ResourceManager manager, ProfilerFiller profiler) {
 		AntiqueAtlas.LOGGER.info("[Antique Atlas] Reloading Marker Textures...");
 		textures.clear();
+		itemTextures.clear();
+		tagTextures.clear();
 		prepared.forEach((id, meta) -> {
 			if (id.getPath().endsWith("_accent")) {
 				ResourceLocation mainId = id.withPath(s -> s.substring(0, s.length() - "_accent".length()));
@@ -96,14 +126,31 @@ public class MarkerTextures extends SimplePreparableReloadListener<Map<ResourceL
 				textures.put(id, meta.build(id, false));
 			}
 		});
+		// Items and tags that pick each texture: its picker item, plus any listed under "items"
+		prepared.keySet().stream().sorted().forEach(id -> {
+			MarkerTextureMeta meta = prepared.get(id);
+			MarkerTexture texture = textures.get(id);
+			if (texture == null) return;
+			meta.item().ifPresent(item -> itemTextures.putIfAbsent(item, texture));
+			for (String entry : meta.items().orElse(List.of())) {
+				if (entry.startsWith("#")) {
+					ResourceLocation tag = ResourceLocation.tryParse(entry.substring(1));
+					if (tag != null) tagTextures.add(Pair.of(TagKey.create(Registries.ITEM, tag), texture));
+				} else {
+					ResourceLocation item = ResourceLocation.tryParse(entry);
+					if (item != null) itemTextures.put(item, texture);
+				}
+			}
+		});
 	}
 
 
-	public record MarkerTextureMeta(Optional<ResourceLocation> item, Optional<Integer> textureWidth, Optional<Integer> textureHeight, Optional<Integer> mipLevels, Optional<Integer> offsetX, Optional<Integer> offsetY, Optional<Integer> nearClip, Optional<Integer> farClip) {
-		public static final MarkerTextureMeta DEFAULT = new MarkerTextureMeta(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
+	public record MarkerTextureMeta(Optional<ResourceLocation> item, Optional<List<String>> items, Optional<Integer> textureWidth, Optional<Integer> textureHeight, Optional<Integer> mipLevels, Optional<Integer> offsetX, Optional<Integer> offsetY, Optional<Integer> nearClip, Optional<Integer> farClip) {
+		public static final MarkerTextureMeta DEFAULT = new MarkerTextureMeta(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 
 		public static final Codec<MarkerTextureMeta> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			ResourceLocation.CODEC.optionalFieldOf("item").forGetter(MarkerTextureMeta::item),
+			Codec.STRING.listOf().optionalFieldOf("items").forGetter(MarkerTextureMeta::items),
 			Codec.INT.optionalFieldOf("textureWidth").forGetter(MarkerTextureMeta::textureWidth),
 			Codec.INT.optionalFieldOf("textureHeight").forGetter(MarkerTextureMeta::textureHeight),
 			Codec.INT.optionalFieldOf("mipLevels").forGetter(MarkerTextureMeta::mipLevels),
