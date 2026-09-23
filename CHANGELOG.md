@@ -39,6 +39,13 @@ here until the date listed.
 - Other players' graves show their owner's name. (antique-atlas#342)
 - The list of your markers keeps the same order every session.
 - Pinned markers at the edge of the map fade the same way on all four sides.
+- Markers of landmarks without their own texture (e.g. waypoints from other mods) use the texture of their item;
+  resource packs can list more items and item tags per marker texture. (antique-atlas#350)
+
+### Resource packs
+- Resource packs choose which tile draws water, swamp water, ice and lava, and can add their own features by block,
+  block tag, biome or biome tag, in `atlas/features/*.json`. The built-in rules draw the map as before.
+  (antique-atlas#318)
 
 ### Stability
 - Singleplayer is safe from races between the game and its built-in server, which could crash the game while the map
@@ -51,5 +58,5 @@ here until the date listed.
 - Working out a chunk's tile is cheaper, and the map is only rebuilt when something on it changed.
 
 ### Tests
-- Regression tests for tile iterator coverage and shapes, tiling rules, elevation bands, allocation checks for
-  per-frame code, and source guards for thread and caching rules.
+- Regression tests for tile iterator coverage and shapes, tiling rules, feature rules, elevation bands, allocation
+  checks for per-frame code, and source guards for thread and caching rules.
