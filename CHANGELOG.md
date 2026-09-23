@@ -36,6 +36,8 @@ here until the date listed.
 
 ### Markers
 - Middle-click a marker to copy its coordinates. (antique-atlas#169)
+- Structure icons can be picked for your own markers: by default only on servers without Surveyor, where structures
+  aren't discovered for you. Option `pickStructureMarkers`. (antique-atlas#171)
 - Other players' graves show their owner's name. (antique-atlas#342)
 - The list of your markers keeps the same order every session.
 - Pinned markers at the edge of the map fade the same way on all four sides.
