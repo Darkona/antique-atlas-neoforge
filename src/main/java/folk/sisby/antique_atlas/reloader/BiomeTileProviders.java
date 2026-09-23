@@ -177,16 +177,19 @@ public class BiomeTileProviders extends SimpleJsonResourceReloadListener {
 	}
 
 	public static @Nullable List<TileTexture> resolveTextureJson(Map<ResourceLocation, TileTexture> textures, JsonElement textureJson) {
+		List<TileTexture> list = null;
 		if (textureJson instanceof JsonPrimitive texturePrimitive && texturePrimitive.isString()) {
-			return List.of(getTexture(textures, ResourceLocation.tryParse(texturePrimitive.getAsString())));
+			list = List.of(getTexture(textures, ResourceLocation.tryParse(texturePrimitive.getAsString())));
 		} else if (textureJson instanceof JsonArray textureArray) {
-			return textureArray.asList().stream().map(je -> getTexture(textures, ResourceLocation.tryParse(je.getAsString()))).toList();
+			list = textureArray.asList().stream().map(je -> getTexture(textures, ResourceLocation.tryParse(je.getAsString()))).toList();
 		} else if (textureJson instanceof JsonObject textureObject && textureObject.keySet().stream().allMatch(k -> textureObject.get(k) instanceof JsonPrimitive jp && jp.isNumber())) {
 			Multiset<TileTexture> outList = HashMultiset.create();
 			textureObject.entrySet().forEach(e -> outList.add(getTexture(textures, ResourceLocation.tryParse(e.getKey())), e.getValue().getAsInt()));
-			return outList.stream().toList();
+			list = outList.stream().toList();
 		}
-		return null;
+		// Fix: an empty list ("textures": [], {} or all weights 0) made the provider divide by zero on every chunk it drew.
+		if (list != null && list.isEmpty()) throw new IllegalStateException("textures list is empty!");
+		return list;
 	}
 
 	@Override
