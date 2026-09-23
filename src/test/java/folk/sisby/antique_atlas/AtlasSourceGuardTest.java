@@ -210,4 +210,14 @@ class AtlasSourceGuardTest {
 		assertTrue(read("reloader/MarkerTextures.java").contains("catch (IOException | RuntimeException ex)"), "marker texture metadata");
 		assertTrue(read("gui/AtlasScreen.java").contains("catch (RuntimeException | IOException e)"), "dimension icon metadata");
 	}
+
+	@Test
+	@DisplayName("Structure tiles: providers are read from the map they were found in, and priority is checked per tile")
+	void structureProvidersLookups() throws IOException {
+		String src = read("reloader/StructureTileProviders.java");
+		assertFalse(src.contains("typeTiles.get(key.location())"), "type providers are keyed by the structure type");
+		assertFalse(src.contains("pieceJigsawSingleTiles.containsKey(jigsawPiece.getId())"), "the jigsaw check must use the map it reads");
+		assertFalse(src.contains("structureProviders.containsKey(pos) && structureProviders.get(pos).priority() < provider.priority()) return;\n\t\t\t\toutTiles.put(pos2"), "priority must be checked on the tile being written");
+		assertEquals(3, src.split("structureProviders.containsKey\\(pos2\\)", -1).length - 1, "start, type and tag tiles check their own tile");
+	}
 }

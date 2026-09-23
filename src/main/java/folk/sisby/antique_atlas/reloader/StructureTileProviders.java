@@ -98,8 +98,10 @@ public class StructureTileProviders extends SimpleJsonResourceReloadListener {
 
 	public void resolve(Long2ObjectMap<TileTexture> outTiles, Map<ChunkPos, StructureTileProvider> structureProviders, Map<ChunkPos, String> tilePredicates, StructurePieceSummary piece, WorldSummary summary) {
 		if (piece instanceof JigsawPieceSummary jigsawPiece) {
-			if (pieceJigsawSingleTiles.containsKey(jigsawPiece.getId())) {
-				StructureTileProvider provider = (jigsawPiece.getElementType() == StructurePoolElementType.FEATURE ? pieceJigsawFeatureTiles : pieceJigsawSingleTiles).get(jigsawPiece.getId());
+			// Fix: checked the single-piece map but read the feature map, so a feature piece known only as a single piece threw,
+			// and feature piece providers were never used.
+			StructureTileProvider provider = (jigsawPiece.getElementType() == StructurePoolElementType.FEATURE ? pieceJigsawFeatureTiles : pieceJigsawSingleTiles).get(jigsawPiece.getId());
+			if (provider != null) {
 				provider.getTextures(summary, jigsawPiece.getBoundingBox(), jigsawPiece.getJunctions(), tilePredicates).forEach((pos, texture) -> {
 					if (structureProviders.containsKey(pos) && structureProviders.get(pos).priority() < provider.priority()) return;
 					outTiles.put(pos.toLong(), texture);
@@ -143,14 +145,14 @@ public class StructureTileProviders extends SimpleJsonResourceReloadListener {
 		if (startTiles.containsKey(key.location())) {
 			StructureTileProvider provider = startTiles.get(key.location());
 			provider.getTextures(summary, start.getBoundingBox(), debugPredicates).forEach((pos2, texture) -> {
-				if (structureProviders.containsKey(pos) && structureProviders.get(pos).priority() < provider.priority()) return;
+				if (structureProviders.containsKey(pos2) && structureProviders.get(pos2).priority() < provider.priority()) return;
 				outTiles.put(pos2.toLong(), texture);
 				structureProviders.put(pos2, provider);
 			});
 		} else if (type != null && typeTiles.containsKey(type.location())) {
-			StructureTileProvider provider = typeTiles.get(key.location());
+			StructureTileProvider provider = typeTiles.get(type.location()); // Fix: looked up by the structure's id, null when it differs from its type's
 			provider.getTextures(summary, start.getBoundingBox(), debugPredicates).forEach((pos2, texture) -> {
-				if (structureProviders.containsKey(pos) && structureProviders.get(pos).priority() < provider.priority()) return;
+				if (structureProviders.containsKey(pos2) && structureProviders.get(pos2).priority() < provider.priority()) return;
 				outTiles.put(pos2.toLong(), texture);
 				structureProviders.put(pos2, provider);
 			});
@@ -158,7 +160,7 @@ public class StructureTileProviders extends SimpleJsonResourceReloadListener {
 			tags.stream().filter(t -> tagTiles.containsKey(t.location())).findFirst().ifPresent(tag -> {
 				StructureTileProvider provider = tagTiles.get(tag.location());
 				provider.getTextures(summary, start.getBoundingBox(), debugPredicates).forEach((pos2, texture) -> {
-					if (structureProviders.containsKey(pos) && structureProviders.get(pos).priority() < provider.priority()) return;
+					if (structureProviders.containsKey(pos2) && structureProviders.get(pos2).priority() < provider.priority()) return; // Fix: checked the start chunk, not this tile's
 					outTiles.put(pos2.toLong(), texture);
 					structureProviders.put(pos2, provider);
 				});
