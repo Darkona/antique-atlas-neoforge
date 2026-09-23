@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
@@ -271,7 +270,7 @@ public class AtlasScreen extends Component implements AtlasRenderer {
 				DimensionTextureMeta meta = icon.metadata().getSection(METADATA).orElseThrow();
 				backgroundTint = meta.color();
 				name = net.minecraft.network.chat.Component.translatable(meta.name());
-			} catch (NullPointerException | IOException | NoSuchElementException e) {
+			} catch (RuntimeException | IOException e) { // Fix: a malformed .mcmeta crashed opening the atlas
 				name = net.minecraft.network.chat.Component.nullToEmpty(WordUtils.capitalizeFully(dimension.location().getPath().replaceAll("[/_-]", " ")));
 				backgroundTint = DyeColor.byId(dimension.location().toString().hashCode() & 15).getTextureDiffuseColor();
 			}

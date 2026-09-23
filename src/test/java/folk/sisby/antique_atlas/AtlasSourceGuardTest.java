@@ -202,4 +202,12 @@ class AtlasSourceGuardTest {
 		assertTrue(src.contains("fromStack(landmark.get(LandmarkComponentTypes.STACK))"));
 		assertTrue(src.contains("optionalFieldOf(\"items\")"), "resource packs can list items and tags per texture");
 	}
+
+	@Test
+	@DisplayName("A malformed .mcmeta is logged and skipped, never thrown past the metadata catch")
+	void badMetadataCaught() throws IOException {
+		assertTrue(read("reloader/TileTextures.java").contains("catch (IOException | RuntimeException ex)"), "tile texture metadata");
+		assertTrue(read("reloader/MarkerTextures.java").contains("catch (IOException | RuntimeException ex)"), "marker texture metadata");
+		assertTrue(read("gui/AtlasScreen.java").contains("catch (RuntimeException | IOException e)"), "dimension icon metadata");
+	}
 }

@@ -96,7 +96,7 @@ public class MarkerTextures extends SimplePreparableReloadListener<Map<ResourceL
 			try {
 				ResourceMetadata metadata = e.getValue().metadata();
 				textureMeta.put(id, metadata.getSection(MarkerTextures.MarkerTextureMeta.METADATA).orElse(MarkerTextureMeta.DEFAULT));
-			} catch (IOException ex) {
+			} catch (IOException | RuntimeException ex) { // Fix: a malformed .mcmeta threw past this and failed the whole reload
 				AntiqueAtlas.LOGGER.error("[Antique Atlas] Failed to access marker texture metadata for {}", e.getKey(), ex);
 				textureMeta.put(id, MarkerTextures.MarkerTextureMeta.DEFAULT);
 			}
