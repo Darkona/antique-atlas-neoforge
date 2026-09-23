@@ -78,6 +78,21 @@ e.g. the landmark `surveyor:player_death/void/29/71/-100` try to use `surveyor/t
 
 The metafile is used to adjust texture rendering specifics for the marker.
 
+The `items` field lists item ids or item tags (`#namespace:tag`). A landmark without a texture of its own (e.g. a
+waypoint from another mod) that carries one of these items is drawn with this texture:
+
+```json5
+// custom/tower.png.mcmeta
+{
+	"antique_atlas:marker": {
+		"item": "brick",
+		"items": ["minecraft:stone_bricks", "#minecraft:stone_bricks"]
+	}
+}
+```
+
+The `item` field is the item shown for the texture in the "add marker" picker; it also picks the texture, like `items`.
+
 This can be used to create abnormally large (`textureWidth` and `textureHeight`) or uncentered (`offsetX` and `offsetY`) markers as above.<br/>
 The offset is how the texture should be panned relative to the top left of the texture - this is `-width/2` and `-height/2` by default (centered).
 
@@ -131,6 +146,52 @@ These will be used when the terrain is at Y <73, <83, <98, <113, and above respe
 	}
 }
 ```
+
+## Features (Feature Rules)
+
+> `assets/namespace/atlas/features/name.json`, one rule per file
+
+Feature rules pick the tile for special terrain inside a chunk: water, swamp water, ice and lava. Each matching block
+column adds `priority` to its rule's tile; the tile with the highest total, among biomes and features, draws the chunk.
+
+```json5
+// assets/antique_atlas/atlas/features/swamp_water.json
+{
+	"tile": "antique_atlas:feature/swamp_water",
+	"priority": 4,
+	"water": true,
+	"biomes": ["#c:swamp"]
+}
+```
+
+| Field      | Meaning                                                                                              |
+|------------|------------------------------------------------------------------------------------------------------|
+| `tile`     | The biome tile provider to draw (`atlas/biome/...`, e.g. `antique_atlas:feature/ice`). Without it, the rule is off. |
+| `priority` | Weight added per matching column. Default `1`. A plain biome column adds 1 (beaches 3, the nether 2). |
+| `water`    | `true`: the rule matches columns under water. `false` (default): columns with no water on top.       |
+| `blocks`   | Block ids or `#tags` for the top block (under water: the floor). Empty or absent: any block.         |
+| `biomes`   | Biome ids or `#tags`. Empty or absent: any biome.                                                    |
+
+A rule that is not `water` needs `blocks` or `biomes`. If several rules match a column, the one with the highest
+`priority` wins, then a rule with `biomes`, then a rule with `blocks`, then the file id. At most 63 rules are used.
+
+The built-in rules are `water` (4), `swamp_water` (4, `#c:swamp`), `ice` (3, `minecraft:ice`) and `lava` (6,
+`minecraft:lava`). In the nether they apply to the lava sea below Y 50; there, a column that matches no rule is lava
+shore. Ravines and empty chunks are not rules.
+
+To change a built-in rule, put a file with the same path in your pack. To turn it off, use `{}`. To add one, for
+example tracks (a future use, antique-atlas#344):
+
+```json5
+// assets/mypack/atlas/features/rails.json
+{
+	"tile": "mypack:feature/rails",
+	"priority": 8,
+	"blocks": ["#minecraft:rails"]
+}
+```
+
+The `tile` must be a biome tile provider (`assets/mypack/atlas/biome/feature/rails.json`) with its tile textures.
 
 ## Structures
 
