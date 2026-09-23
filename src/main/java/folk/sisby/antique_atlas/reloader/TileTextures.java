@@ -46,11 +46,11 @@ public class TileTextures extends SimplePreparableReloadListener<Map<ResourceLoc
 				ResourceMetadata metadata = e.getValue().metadata();
 				metadata.getSection(TileTextureMeta.METADATA).ifPresentOrElse(meta -> textureMeta.put(id, meta), () -> {
 					AntiqueAtlas.LOGGER.info("[Antique Atlas] Metadata not present for {} - using defaults.", e.getKey());
-					textureMeta.put(id, TileTextureMeta.DEFAULT);
+					textureMeta.put(id, TileTextureMeta.defaults());
 				});
-			} catch (IOException ex) {
+			} catch (IOException | RuntimeException ex) { // Fix: a malformed .mcmeta threw past this and failed the whole reload
 				AntiqueAtlas.LOGGER.error("[Antique Atlas] Failed to access tile texture metadata for {}", e.getKey(), ex);
-				textureMeta.put(id, TileTextureMeta.DEFAULT);
+				textureMeta.put(id, TileTextureMeta.defaults());
 			}
 		}
 		return textureMeta;
@@ -74,13 +74,7 @@ public class TileTextures extends SimplePreparableReloadListener<Map<ResourceLoc
 		invalidParents.keySet().forEach(prepared::remove);
 
 		// Propagate fields to children
-		prepared.forEach((id, meta) -> {
-			Optional<TileTextureMeta> parent = meta.parent().map(prepared::get);
-			while (parent.isPresent()) {
-				meta.inheritFromAncestor(parent.orElseThrow());
-				parent = parent.orElseThrow().parent().map(prepared::get);
-			}
-		});
+		inheritFromParents(prepared);
 
 		// Populate Tags
 		Map<ResourceLocation, Set<ResourceLocation>> textureTags = new HashMap<>();
@@ -105,8 +99,34 @@ public class TileTextures extends SimplePreparableReloadListener<Map<ResourceLoc
 	}
 
 
+	// Fix: a parent chain that loops (a texture that is its own ancestor) froze the game on resource reload.
+	static void inheritFromParents(Map<ResourceLocation, TileTextureMeta> prepared) {
+		prepared.forEach((id, meta) -> {
+			Set<ResourceLocation> visited = new HashSet<>();
+			visited.add(id);
+			ResourceLocation parentId = meta.parent;
+			while (parentId != null && prepared.containsKey(parentId)) {
+				if (!visited.add(parentId)) {
+					AntiqueAtlas.LOGGER.error("[Antique Atlas] Tile texture {} has a parent loop through {}; ignoring the rest of its parents", id, parentId);
+					break;
+				}
+				TileTextureMeta parent = prepared.get(parentId);
+				meta.inheritFromAncestor(parent);
+				parentId = parent.parent;
+			}
+		});
+	}
+
 	public static class TileTextureMeta {
 		public static final TileTextureMeta DEFAULT = new TileTextureMeta(null, null, Set.of(), Set.of(), Set.of(), Set.of(), Set.of(), Set.of(), Set.of());
+
+		/**
+		 * Fix: textures without metadata shared {@link #DEFAULT}, whose sets are immutable: another texture's
+		 * {@code tilesToThis} naming one of them failed the reload, and a mutable shared default would leak between them.
+		 */
+		public static TileTextureMeta defaults() {
+			return new TileTextureMeta(null, null, new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>());
+		}
 
 		public static final Codec<TileTextureMeta> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			ResourceLocation.CODEC.optionalFieldOf("parent").forGetter(TileTextureMeta::parent),
