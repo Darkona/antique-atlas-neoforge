@@ -22,6 +22,7 @@ import folk.sisby.antique_atlas.gui.MarkerGeometry;
 import java.util.Collections;
 import java.util.TreeMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.LinkedHashMap;
 import java.util.Comparator;
 import java.util.ArrayList;
@@ -224,11 +225,12 @@ public class WorldAtlasData {
 			Component name = landmark.get(LandmarkComponentTypes.NAME);
 			if (name == null && style == AntiqueAtlasConfig.GraveStyle.CAUSE) style = AntiqueAtlasConfig.GraveStyle.DIED;
 			MutableComponent timeText = Component.literal(String.valueOf(1 + (landmark.getOrDefault(LandmarkComponentTypes.TIME, 0L) / 24000L))).withStyle(ChatFormatting.WHITE);
-			String key = "gui.antique_atlas.marker.death.%s".formatted(style.toString().toLowerCase());
+			// Fix: the default locale's lower case turned ITEMS and DIED into ıtems and dıed on Turkish systems (raw keys shown)
+			String key = "gui.antique_atlas.marker.death.%s".formatted(style.toString().toLowerCase(Locale.ROOT));
 			MutableComponent text = switch (style) {
 				case CAUSE -> Component.translatable(key, name.copy().withStyle(ChatFormatting.GRAY).withStyle(ChatFormatting.RED), timeText).withStyle(ChatFormatting.GRAY);
-				case GRAVE, ITEMS, DIED -> Component.translatable(key, Component.translatable("gui.antique_atlas.marker.death.%s.verb".formatted(style.toString().toLowerCase())).withStyle(ChatFormatting.RED), timeText).withStyle(ChatFormatting.GRAY);
-				case EUPHEMISMS -> Component.translatable(key, Component.translatable("gui.antique_atlas.marker.death.%s.verb.%s".formatted(style.toString().toLowerCase(), new Random(landmark.getOrDefault(LandmarkComponentTypes.SEED, 0)).nextInt(11))).withStyle(ChatFormatting.RED), timeText).withStyle(ChatFormatting.GRAY);
+				case GRAVE, ITEMS, DIED -> Component.translatable(key, Component.translatable("gui.antique_atlas.marker.death.%s.verb".formatted(style.toString().toLowerCase(Locale.ROOT))).withStyle(ChatFormatting.RED), timeText).withStyle(ChatFormatting.GRAY);
+				case EUPHEMISMS -> Component.translatable(key, Component.translatable("gui.antique_atlas.marker.death.%s.verb.%s".formatted(style.toString().toLowerCase(Locale.ROOT), new Random(landmark.getOrDefault(LandmarkComponentTypes.SEED, 0)).nextInt(11))).withStyle(ChatFormatting.RED), timeText).withStyle(ChatFormatting.GRAY);
 			};
 			addLandmarkMarker(copyLandmarkWith(landmark, landmark.id(), m -> {
 				m.set(LandmarkComponentTypes.COLOR, DyeColor.GRAY.getTextureDiffuseColor());

@@ -239,4 +239,10 @@ class AtlasSourceGuardTest {
 		method = method.substring(0, method.indexOf("\n\t}"));
 		assertFalse(method.contains("AntiqueAtlas.id(") || method.contains("containsKey("), "no ids built and no double lookups per tile");
 	}
+
+	@Test
+	@DisplayName("Translation keys are lower-cased with Locale.ROOT")
+	void keysLowerCasedWithRootLocale() throws IOException {
+		assertFalse(read("WorldAtlasData.java").contains(".toLowerCase()"), "a Turkish default locale turns I into ı");
+	}
 }
