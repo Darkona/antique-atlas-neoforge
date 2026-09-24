@@ -62,6 +62,10 @@ here until the date listed.
 - Structure-type tiles work when the structure's id differs from its type's (e.g. `woodland_mansion` for the mansion)
   instead of crashing on discovery; `piece/jigsaw/feature` tiles are used; tile priorities apply to every tile of a
   structure, not only its start chunk.
+- Resource packs set how the map reads each dimension in `atlas/dimension/*.json`: surface or nether-style scan, sea
+  level, scan height, ravines and the tile for the void. Modded dimensions (sky islands, deep caves) can now be drawn
+  with their own settings; the built-in files draw the vanilla dimensions as before. (antique-atlas#77,
+  antique-atlas#249)
 
 ### Stability
 - Singleplayer is safe from races between the game and its built-in server, which could crash the game while the map
