@@ -282,3 +282,43 @@ Dimensions are given custom bookmark icons from `namespace/textures/atlas/dimens
 ```
 
 Dimensions will otherwise use a question mark texture and a random color hashed from their ID.
+
+### Terrain Settings
+
+> `assets/namespace/atlas/dimension/path.json` for dimension `namespace:path`
+
+These settings choose how the map reads a dimension's terrain. A dimension without a file uses the defaults below
+(the surface scan at sea level 63, no ravines, the empty tile for the void). Antique Atlas includes files for the
+Overworld, the Nether and the End.
+
+```json5
+// assets/minecraft/atlas/dimension/the_nether.json
+{
+	"scanner": "nether",
+	"sea_level": 31,
+	"scan_top": 126,
+	"floor_scan_top": 50,
+	"empty_tile": "antique_atlas:feature/bedrock_roof"
+}
+```
+
+| Field            | Default                       | Meaning                                                                                                                                                                                                  |
+|------------------|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `scanner`        | `surface`                     | `surface`: the top floor of each column, with elevations and feature rules. `nether`: floors under a ceiling; low floors are lava sea (feature rules) or lava shore, other floors show their biome.           |
+| `sea_level`      | `63`                          | `surface`: the Y that elevations (`valley` ... `peak`) and ravines are measured from. `nether`: the lava sea level; floors under it show their biome.                                                    |
+| `scan_top`       | none                          | The highest Y that is read. None: the whole column. A `nether` scanner needs it (its ceiling), or it only sees the roof.                                                                                  |
+| `floor_scan_top` | `50`                          | `nether` only: the highest Y of the low floors (lava sea and shore).                                                                                                                                     |
+| `ravines`        | `false`                       | `true`: columns more than 7 blocks under `sea_level` are drawn as ravines (the Overworld).                                                                                                               |
+| `empty_tile`     | `antique_atlas:feature/empty` | The biome tile provider for columns with no floor (holes to the void). The End uses `antique_atlas:feature/end_void`. Any provider works, for example a sky tile for a dimension of floating islands. |
+
+To change a built-in dimension, put a file with the same path in your pack. For a modded sky dimension:
+
+```json5
+// assets/aether/atlas/dimension/the_aether.json
+{
+	"sea_level": 100,
+	"empty_tile": "mypack:feature/sky"
+}
+```
+
+Changes apply after a resource reload (F3+T), which redraws the map.
