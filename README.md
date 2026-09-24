@@ -38,8 +38,9 @@ This fork keeps Antique Atlas' features, art, resource-pack format and mod id. I
 **Platform**
 - Runs natively on NeoForge 21.1 — no Sinytra Connector or Fabric API.
 - The configuration file uses NeoForge's format; the options that were tables (`structureMarkers`, dimension `scales`) are lists of `"name=value"` entries.
+- The mod list's Config button opens a config screen with every option.
 
-**Fixes** — bugs of the original, fixed here
+**Fixes** — bugs of the original, fixed here. Each fix's commit references the original issue number where there is one.
 - Singleplayer is safe from races between the game and its built-in server, which could crash the game while the map was being drawn.
 - The map now updates when terrain changes — previously an already drawn area stayed as it was until you rejoined (most visible at the edge of explored land).
 - The list of your markers keeps the same order every session.
@@ -47,6 +48,19 @@ This fork keeps Antique Atlas' features, art, resource-pack format and mod id. I
 - A dimension explored only along one row of chunks is no longer hidden from the dimension list.
 - Memory is no longer kept from previous singleplayer worlds.
 - The first tile of the drawn area, and the last row and column when zoomed out, were only half drawn (inside the margin drawn around the visible map, so it did not show in normal play).
+- Joining another share group redraws the map from the new group's exploration, and reloading resources (F3+T) redraws it with the new textures and tile rules.
+- The book frame's soft edge over the map is translucent again, and hovering your own player icon no longer shifts what is drawn after it.
+- Holes to the void and the edges of End islands use the empty or End void tile, and a biome outside a region's palette no longer crashes the game.
+- A book named with the translated atlas name works as an atlas, in any language.
+- A malformed `.mcmeta` on a texture, a loop of `parent` textures, a tile provider with an empty texture list, and structures whose id differs from their type's no longer fail the resource reload or crash the game.
+- The bookmark lists keep their scroll position when markers change, and grave markers show their text on systems set to Turkish.
+
+**New features**
+- Sneak and use the atlas book to zoom the handheld map out: 1, 2 or 4 chunks per tile.
+- Middle-click a marker to copy its coordinates. Other players' graves show their owner's name.
+- Structure icons can be picked for your own markers (by default only on servers without Surveyor). Option `pickStructureMarkers`.
+- Markers without their own texture, such as waypoints from other mods, use their item's texture; resource packs can list more items and item tags per marker texture.
+- Resource packs choose which tile draws water, swamp water, ice and lava, and can add their own features by block, block tag, biome or biome tag in `atlas/features/*.json`.
 
 **Performance**
 - Holding the atlas no longer triggers an expensive check for shader mods hundreds of times per frame.
