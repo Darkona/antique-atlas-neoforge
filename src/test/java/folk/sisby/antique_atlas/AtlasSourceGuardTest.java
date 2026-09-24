@@ -245,4 +245,11 @@ class AtlasSourceGuardTest {
 	void keysLowerCasedWithRootLocale() throws IOException {
 		assertFalse(read("WorldAtlasData.java").contains(".toLowerCase()"), "a Turkish default locale turns I into ı");
 	}
+
+	@Test
+	@DisplayName("Landmark events mark the bookmark lists dirty instead of rebuilding them on the spot")
+	void bookmarksRebuiltOncePerTick() throws IOException {
+		assertFalse(read("WorldAtlasData.java").contains("as.updateBookmarkerList()"), "each landmark event rebuilt every bookmark and reset the scroll");
+		assertTrue(read("gui/AtlasScreen.java").contains("if (bookmarksDirty) {"));
+	}
 }

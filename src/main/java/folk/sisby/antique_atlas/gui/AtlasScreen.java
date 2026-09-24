@@ -502,9 +502,28 @@ public class AtlasScreen extends Component implements AtlasRenderer {
 		return super.mouseDragged(mouseX, mouseY, lastMouseButton, deltaX, deltaY) || result;
 	}
 
+	private boolean bookmarksDirty = false;
+
+	/**
+	 * Fix: every landmark event rebuilt all bookmarks (resource and metadata lookups per dimension) and scrolled both
+	 * lists back to the start; while POIs or waypoints kept arriving the lists jumped as you scrolled. Now the lists are
+	 * rebuilt at most once per tick and keep their scroll position.
+	 */
+	public void markBookmarksDirty() {
+		bookmarksDirty = true;
+	}
+
 	@Override
 	public void tick() {
 		super.tick();
+		if (bookmarksDirty) {
+			bookmarksDirty = false;
+			int dimensionScroll = dimensionScrollBox.getScrollPos();
+			int markerScroll = markerScrollBox.getScrollPos();
+			updateBookmarkerList();
+			dimensionScrollBox.setScrollPos(dimensionScroll);
+			markerScrollBox.setScrollPos(markerScroll);
+		}
 		if (player == null) return;
 
 		double dimX = player.getBlockX();

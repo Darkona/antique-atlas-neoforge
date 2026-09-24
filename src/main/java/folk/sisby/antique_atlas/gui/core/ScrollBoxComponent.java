@@ -111,6 +111,10 @@ public class ScrollBoxComponent extends Component {
 		return vertical ? viewport.getHeight() : viewport.getWidth();
 	}
 
+	public int getScrollPos() {
+		return scrollPos;
+	}
+
 	public ViewportComponent getViewport() {
 		return viewport;
 	}

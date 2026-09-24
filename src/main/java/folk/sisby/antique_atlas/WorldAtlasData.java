@@ -243,7 +243,7 @@ public class WorldAtlasData {
 
 	public void onLandmarksAdded(WorldSummary summary, Multimap<UUID, ResourceLocation> landmarks) {
 		landmarks.forEach((type, pos) -> this.addLandmark(summary.landmarks().get(type, pos)));
-		if (Minecraft.getInstance().screen instanceof AtlasScreen as) as.updateBookmarkerList();
+		if (Minecraft.getInstance().screen instanceof AtlasScreen as) as.markBookmarksDirty();
 	}
 
 	public void onLandmarksRemoved(WorldSummary summary, Multimap<UUID, ResourceLocation> landmarks) {
@@ -254,7 +254,7 @@ public class WorldAtlasData {
 			}
 		});
 		markersChanged();
-		if (Minecraft.getInstance().screen instanceof AtlasScreen as) as.updateBookmarkerList();
+		if (Minecraft.getInstance().screen instanceof AtlasScreen as) as.markBookmarksDirty();
 	}
 
 	public boolean deleteLandmark(ResourceKey<Level> dimension, Landmark landmark) {
