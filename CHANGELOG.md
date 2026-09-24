@@ -28,6 +28,9 @@ here until the date listed.
 - A dimension explored along a single row of chunks is no longer hidden from the dimension list.
 - The first tile of the drawn area, and the last row and column when zoomed out, were only half drawn (inside the
   margin around the visible map).
+- Holes to the void and the edges of End islands are drawn with the empty or End void tile, not a random biome of the
+  region.
+- A biome outside a region's palette no longer crashes the game every tick; that chunk is left undrawn.
 
 ### Handheld atlas
 - Sneak and use the atlas book to zoom the handheld map out: 1, 2 or 4 chunks per tile. (antique-atlas#353)
@@ -41,6 +44,8 @@ here until the date listed.
 - Other players' graves show their owner's name. (antique-atlas#342)
 - The list of your markers keeps the same order every session.
 - Pinned markers at the edge of the map fade the same way on all four sides.
+- The bookmark lists keep their scroll position when markers are added or removed while the atlas is open.
+- Grave markers show their text on systems set to Turkish, instead of raw translation keys.
 - Markers of landmarks without their own texture (e.g. waypoints from other mods) use the texture of their item;
   resource packs can list more items and item tags per marker texture. (antique-atlas#350)
 
@@ -48,6 +53,15 @@ here until the date listed.
 - Resource packs choose which tile draws water, swamp water, ice and lava, and can add their own features by block,
   block tag, biome or biome tag, in `atlas/features/*.json`. The built-in rules draw the map as before.
   (antique-atlas#318)
+- A malformed `.mcmeta` on a tile, marker or dimension icon texture is logged and ignored. It used to fail the resource
+  reload (turning every resource pack off) or crash the game when the atlas opened.
+- A tile texture without `.mcmeta` named in another texture's `tilesToThis` no longer fails the resource reload, and a
+  loop of `parent` textures no longer freezes the game.
+- A biome or structure tile provider with an empty texture list is logged and skipped, instead of crashing the game every
+  tick while that area is on the map.
+- Structure-type tiles work when the structure's id differs from its type's (e.g. `woodland_mansion` for the mansion)
+  instead of crashing on discovery; `piece/jigsaw/feature` tiles are used; tile priorities apply to every tile of a
+  structure, not only its start chunk.
 
 ### Stability
 - Singleplayer is safe from races between the game and its built-in server, which could crash the game while the map
@@ -58,6 +72,8 @@ here until the date listed.
 - Holding the atlas no longer checks for shader mods hundreds of times per frame.
 - Drawing the map, its markers and players creates next to no garbage per frame; markers are drawn in batches.
 - Working out a chunk's tile is cheaper, and the map is only rebuilt when something on it changed.
+- Drawing the map no longer creates an object for every empty tile, and looks each tile up once.
+- Markers arriving while the atlas is open rebuild its bookmark lists at most once per tick.
 
 ### Tests
 - Regression tests for tile iterator coverage and shapes, tiling rules, feature rules, elevation bands, allocation
