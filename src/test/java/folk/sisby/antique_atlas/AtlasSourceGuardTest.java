@@ -220,4 +220,14 @@ class AtlasSourceGuardTest {
 		assertFalse(src.contains("structureProviders.containsKey(pos) && structureProviders.get(pos).priority() < provider.priority()) return;\n\t\t\t\toutTiles.put(pos2"), "priority must be checked on the tile being written");
 		assertEquals(3, src.split("structureProviders.containsKey\\(pos2\\)", -1).length - 1, "start, type and tag tiles check their own tile");
 	}
+
+	@Test
+	@DisplayName("Terrain tiling: empty columns vote for their feature tile; bad indexes don't throw from the tick")
+	void tilingIndexes() throws IOException {
+		String src = read("TerrainTiling.java");
+		assertFalse(src.contains("[elevationSize][defaultTile]"), "the default tile is a feature column, after the biome columns");
+		assertEquals(2, src.split("\\[biomeCount \\+ defaultTile\\]", -1).length - 1);
+		assertFalse(src.contains("throw new RuntimeException"), "a bad palette entry must not throw from the client tick");
+		assertFalse(src.contains("] += priorityForBiome") && !src.contains("biomes()[i] < biomeCount"), "biome indexes must be bounded by the palette");
+	}
 }

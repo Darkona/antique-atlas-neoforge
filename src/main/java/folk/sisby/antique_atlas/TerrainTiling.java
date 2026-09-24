@@ -117,6 +117,8 @@ public class TerrainTiling {
 		return priority;
 	}
 
+	private static boolean nullProviderLogged = false;
+
 	public static Pair<TerrainTileProvider, TileElevation> frequencyToTexture(int[][] possibleTiles, FeatureRuleSet rules, Registry<Biome> biomeRegistry, IdMap<Biome> biomePalette) {
 		int elevationOrdinal = -1;
 		int biomeIndex = -1;
@@ -133,8 +135,10 @@ public class TerrainTiling {
 		if (bestFrequency == 0) return null;
 		int customTileIndex = biomeIndex - possibleTiles[0].length + rules.customTileCount();
 		ResourceLocation providerId = customTileIndex >= 0 ? rules.customTile(customTileIndex) : biomeRegistry.getKey(biomePalette.byId(biomeIndex));
-		if (providerId == null) {
-			throw new RuntimeException(customTileIndex >= 0 ? "Custom tile index %s was out of bounds for size %s!".formatted(customTileIndex, rules.customTileCount()) : "Biome ID was null at index %s and instance %S!".formatted(biomeIndex, biomePalette.byId(biomeIndex)));
+		if (providerId == null) { // Fix: threw from the client tick, every tick, for the same chunk
+			if (!nullProviderLogged) AntiqueAtlas.LOGGER.error("[Antique Atlas] " + (customTileIndex >= 0 ? "Custom tile index %s was out of bounds for size %s!".formatted(customTileIndex, rules.customTileCount()) : "Biome ID was null at index %s and instance %S!".formatted(biomeIndex, biomePalette.byId(biomeIndex))) + " Leaving such chunks undrawn.");
+			nullProviderLogged = true;
+			return null;
 		}
 		return Pair.of(BiomeTileProviders.getInstance().getTileProvider(providerId), elevationOrdinal == ELEVATIONS.length ? null : ELEVATIONS[elevationOrdinal]);
 	}
@@ -164,7 +168,7 @@ public class TerrainTiling {
 
 		for (int i = 0; i < lithograph.depths().length; i++) {
 			if (!lithograph.exists().get(i)) {
-				possibleTiles[elevationSize][defaultTile] += EMPTY_PRIORITY;
+				possibleTiles[elevationSize][biomeCount + defaultTile] += EMPTY_PRIORITY; // Fix: without biomeCount this voted for a biome
 				continue;
 			}
 			int height = topY - lithograph.depths()[i] + lithograph.waterDepths()[i];
@@ -178,7 +182,7 @@ public class TerrainTiling {
 				int rule = rules.match(lithograph.waterDepths()[i] > 0, blockRules(rules, block), biomeRules(rules, biomeRegistry, biome));
 				if (rule >= 0) possibleTiles[elevationSize][biomeCount + rules.column(rule)] += rules.priority(rule);
 			}
-			possibleTiles[TileElevation.fromBlocksAboveSea(height - SEA_LEVEL).ordinal()][lithograph.biomes()[i]] += priorityForBiome(biomeRegistry, biome);
+			if (lithograph.biomes()[i] < biomeCount) possibleTiles[TileElevation.fromBlocksAboveSea(height - SEA_LEVEL).ordinal()][lithograph.biomes()[i]] += priorityForBiome(biomeRegistry, biome); // Fix: an index past the palette threw every tick
 		}
 
 		return frequencyToTexture(possibleTiles, rules, biomeRegistry, biomePalette);
@@ -216,17 +220,17 @@ public class TerrainTiling {
 		if (lowLithograph == null) {
 			for (int i = 0; i < fullLithograph.depths().length; i++) {
 				if (!fullLithograph.exists().get(i)) {
-					possibleTiles[elevationSize][defaultTile] += EMPTY_PRIORITY;
+					possibleTiles[elevationSize][biomeCount + defaultTile] += EMPTY_PRIORITY; // Fix: without biomeCount this voted for a biome
 				} else {
 					Biome biome = biomePalette.byId(fullLithograph.biomes()[i]);
-					possibleTiles[elevationSize][fullLithograph.biomes()[i]] += priorityForBiome(biomeRegistry, biome);
+					if (fullLithograph.biomes()[i] < biomeCount) possibleTiles[elevationSize][fullLithograph.biomes()[i]] += priorityForBiome(biomeRegistry, biome);
 				}
 			}
 		} else {
 			for (int i = 0; i < lowLithograph.depths().length; i++) {
 				if (!lowLithograph.exists().get(i) || lowLithograph.depths()[i] > SEA_DEPTH) {
 					Biome biome = biomePalette.byId(fullLithograph.biomes()[i]);
-					possibleTiles[elevationSize][fullLithograph.biomes()[i]] += priorityForBiome(biomeRegistry, biome);
+					if (fullLithograph.biomes()[i] < biomeCount) possibleTiles[elevationSize][fullLithograph.biomes()[i]] += priorityForBiome(biomeRegistry, biome);
 				} else {
 					Block block = blockPalette.byId(lowLithograph.blocks()[i]);
 					Biome biome = biomePalette.byId(lowLithograph.biomes()[i]);
