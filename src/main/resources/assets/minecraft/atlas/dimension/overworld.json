@@ -1,0 +1,6 @@
+{
+	"scanner": "surface",
+	"sea_level": 63,
+	"ravines": true,
+	"empty_tile": "antique_atlas:feature/empty"
+}

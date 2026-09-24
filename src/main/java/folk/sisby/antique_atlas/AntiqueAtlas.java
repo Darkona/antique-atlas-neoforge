@@ -3,6 +3,7 @@ package folk.sisby.antique_atlas;
 import folk.sisby.antique_atlas.gui.AtlasScreen;
 import folk.sisby.antique_atlas.gui.core.ScreenState;
 import folk.sisby.antique_atlas.reloader.BiomeTileProviders;
+import folk.sisby.antique_atlas.reloader.DimensionConfigs;
 import folk.sisby.antique_atlas.reloader.FeatureRules;
 import folk.sisby.antique_atlas.reloader.MarkerTextures;
 import folk.sisby.antique_atlas.reloader.StructureTileProviders;
@@ -190,6 +191,7 @@ public class AntiqueAtlas {
 			e.registerReloadListener(StructureTileProviders.getInstance());
 			e.registerReloadListener(BiomeTileProviders.getInstance());
 			e.registerReloadListener(FeatureRules.getInstance());
+			e.registerReloadListener(DimensionConfigs.getInstance());
 			// Fix (F3+T): rebuild the atlas from the reloaded resources on the next client tick, after every listener applied.
 			e.registerReloadListener((ResourceManagerReloadListener) manager -> rebuildPending = true);
 		});

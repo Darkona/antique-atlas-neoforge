@@ -3,6 +3,7 @@ package folk.sisby.antique_atlas;
 import com.google.common.collect.Multimap;
 import folk.sisby.antique_atlas.gui.AtlasScreen;
 import folk.sisby.antique_atlas.reloader.BiomeTileProviders;
+import folk.sisby.antique_atlas.reloader.DimensionConfigs;
 import folk.sisby.antique_atlas.reloader.MarkerTextures;
 import folk.sisby.antique_atlas.reloader.StructureTileProviders;
 import folk.sisby.antique_atlas.reloader.TileTextures;
@@ -54,7 +55,7 @@ public class WorldAtlasData {
 	public static final Map<ResourceKey<Level>, WorldAtlasData> WORLDS = new HashMap<>();
 
 	public static WorldAtlasData getOrCreate(ResourceKey<Level> dimension) {
-		return WORLDS.computeIfAbsent(dimension, k -> new WorldAtlasData());
+		return WORLDS.computeIfAbsent(dimension, k -> new WorldAtlasData(DimensionConfigs.getInstance().get(k)));
 	}
 
 	/**
@@ -88,6 +89,8 @@ public class WorldAtlasData {
 		return !WORLDS.containsKey(dimension) || WORLDS.get(dimension).isEmpty();
 	}
 
+	// Resolved when the dimension's data is created; a resource reload rebuilds every dimension (antique-atlas#77, #249)
+	protected final DimensionSettings settings;
 	protected final Long2ObjectOpenHashMap<TileTexture> biomeTiles = new Long2ObjectOpenHashMap<>();
 	protected final Long2ObjectOpenHashMap<TileTexture> structureTiles = new Long2ObjectOpenHashMap<>();
 	protected final Map<UUID, Map<ResourceLocation, Pair<Landmark, MarkerTexture>>> landmarkMarkers = new ConcurrentHashMap<>();
@@ -112,6 +115,18 @@ public class WorldAtlasData {
 	protected final Map<ChunkPos, TerrainTileProvider> debugBiomes = new HashMap<>();
 	protected final Map<ChunkPos, StructureTileProvider> debugStructures = new HashMap<>();
 
+
+	public WorldAtlasData() {
+		this(DimensionSettings.DEFAULT);
+	}
+
+	public WorldAtlasData(DimensionSettings settings) {
+		this.settings = settings;
+	}
+
+	public DimensionSettings settings() {
+		return settings;
+	}
 
 	private boolean isEmpty() {
 		// Fix: a dimension explored along a single chunk row counted as empty.
@@ -153,7 +168,7 @@ public class WorldAtlasData {
 			ChunkPos pos = terrainDeque.pollFirst();
 			terrainDequeHash.remove(pos);
 			if (pos == null) break;
-			Pair<TerrainTileProvider, TileElevation> tile = summary.dimension() == Level.NETHER ? TerrainTiling.terrainToTileNether(summary, pos) : TerrainTiling.terrainToTile(summary, pos);
+			Pair<TerrainTileProvider, TileElevation> tile = settings.scanner() == DimensionSettings.Scanner.NETHER ? TerrainTiling.terrainToTileNether(summary, pos, settings) : TerrainTiling.terrainToTile(summary, pos, settings);
 			if (tile != null) {
 				tileScope.extendTo(pos.x, pos.z);
 				biomeTiles.put(pos.toLong(), tile.left().getTexture(pos, tile.right()));

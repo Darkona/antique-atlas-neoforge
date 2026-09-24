@@ -186,4 +186,15 @@ public final class FeatureRuleSet {
 	public ResourceLocation customTile(int index) {
 		return customTiles[index];
 	}
+
+	/**
+	 * @return the custom tile index of a tile, or {@link #customTileCount()} (one past the end) when it isn't one.
+	 * Linear; resolve once per rule set, not per column.
+	 */
+	public int customTileIndex(ResourceLocation tile) {
+		for (int i = 0; i < customTiles.length; i++) {
+			if (customTiles[i].equals(tile)) return i;
+		}
+		return customTiles.length;
+	}
 }

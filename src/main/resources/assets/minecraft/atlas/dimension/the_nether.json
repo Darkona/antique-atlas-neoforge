@@ -1,0 +1,7 @@
+{
+	"scanner": "nether",
+	"sea_level": 31,
+	"scan_top": 126,
+	"floor_scan_top": 50,
+	"empty_tile": "antique_atlas:feature/bedrock_roof"
+}

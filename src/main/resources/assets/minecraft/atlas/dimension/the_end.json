@@ -1,0 +1,5 @@
+{
+	"scanner": "surface",
+	"sea_level": 63,
+	"empty_tile": "antique_atlas:feature/end_void"
+}
