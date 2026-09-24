@@ -230,4 +230,13 @@ class AtlasSourceGuardTest {
 		assertFalse(src.contains("throw new RuntimeException"), "a bad palette entry must not throw from the client tick");
 		assertFalse(src.contains("] += priorityForBiome") && !src.contains("biomes()[i] < biomeCount"), "biome indexes must be bounded by the palette");
 	}
+
+	@Test
+	@DisplayName("Tile lookups, run several times per tile per frame, allocate nothing")
+	void tileLookupNoAllocation() throws IOException {
+		String src = read("WorldAtlasData.java");
+		String method = src.substring(src.indexOf("public TileTexture getTile(int x, int z) {"));
+		method = method.substring(0, method.indexOf("\n\t}"));
+		assertFalse(method.contains("AntiqueAtlas.id(") || method.contains("containsKey("), "no ids built and no double lookups per tile");
+	}
 }

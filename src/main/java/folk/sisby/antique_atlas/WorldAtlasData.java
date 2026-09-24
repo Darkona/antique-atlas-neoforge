@@ -173,10 +173,16 @@ public class WorldAtlasData {
 		return tileScope;
 	}
 
+	private static final ResourceLocation CLOUDS = AntiqueAtlas.id("clouds");
+
+	// Fix: called about four times per drawn tile per frame; it built the clouds id for every empty tile and looked each
+	// tile up twice.
 	public TileTexture getTile(int x, int z) {
 		long key = ChunkPos.asLong(x, z);
-		if (!biomeTiles.containsKey(key)) return AntiqueAtlas.CONFIG.emptyHandling == AntiqueAtlasConfig.EmptyHandling.CLOUDS ? TileTextures.getInstance().getTextures().get(AntiqueAtlas.id("clouds")) : null;
-		return structureTiles.containsKey(key) ? structureTiles.get(key) : biomeTiles.get(key);
+		TileTexture biome = biomeTiles.get(key);
+		if (biome == null) return AntiqueAtlas.CONFIG.emptyHandling == AntiqueAtlasConfig.EmptyHandling.CLOUDS ? TileTextures.getInstance().getTextures().get(CLOUDS) : null;
+		TileTexture structure = structureTiles.get(key);
+		return structure != null ? structure : biome;
 	}
 
 	public TileTexture getTile(ChunkPos pos) {
