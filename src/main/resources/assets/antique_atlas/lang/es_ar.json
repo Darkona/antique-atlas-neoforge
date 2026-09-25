@@ -46,5 +46,9 @@
     "item.antique_atlas.atlas.hint": "Obtenible en supervivencia renombrando un libro \"%s\".",
 	"gui.antique_atlas.copiedCoordinates": "Coordenadas copiadas: %s",
 	"gui.antique_atlas.marker.death.owner": "%s: %s",
-	"gui.antique_atlas.handheldZoom": "Atlas en mano: %s chunks por casilla"
+	"gui.antique_atlas.handheldZoom": "Atlas en mano: %s chunks por casilla",
+	"gui.antique_atlas.exportImage": "Exportar mapa como imagen",
+	"gui.antique_atlas.export.success": "Mapa guardado como %s (%s x %s píxeles, %s chunks por casilla)",
+	"gui.antique_atlas.export.failure": "No se pudo exportar el mapa: %s",
+	"gui.antique_atlas.export.empty": "Todavía no hay nada explorado en esta dimensión"
 }

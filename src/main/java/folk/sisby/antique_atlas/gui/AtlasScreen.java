@@ -70,6 +70,7 @@ public class AtlasScreen extends Component implements AtlasRenderer {
 	public final BookmarkButton deleteMarkerBookmark; // Button for deleting local markers.
 	public final BookmarkButton markerVisibilityBookmark; // Button for showing/hiding all markers.
 	public final TextBookmarkButton resetScaleBookmark; // Button for displaying the scale, and setting the scale to 1 chunk / 1 tile / 16px.
+	public final BookmarkButton exportBookmark; // Button for saving the dimension's whole explored map as a PNG (antique-atlas#216).
 	public final BookmarkButton playerBookmark; // Button for restoring player's position at the center of the Atlas.
 	public final ScrollBoxComponent markerScrollBox = new ScrollBoxComponent(true, BookmarkButton.HEIGHT + BOOKMARK_SPACING);
 	public final ScrollBoxComponent dimensionScrollBox = new ScrollBoxComponent(false, BookmarkButton.WIDTH + BOOKMARK_SPACING);
@@ -182,6 +183,15 @@ public class AtlasScreen extends Component implements AtlasRenderer {
 		resetScaleBookmark.addListener(button -> {
 			resetZoom();
 			resetScaleBookmark.setSelected(false);
+		});
+		exportBookmark = new BookmarkButton(net.minecraft.network.chat.Component.translatable("gui.antique_atlas.exportImage"), ICON_EXPORT, DyeColor.LIGHT_BLUE.getTextureDiffuseColor(), null, 16, 16, false, false);
+		addChild(exportBookmark);
+		offsetSideButton(exportBookmark);
+		exportBookmark.addListener(button -> {
+			exportBookmark.setSelected(false);
+			if (worldAtlasData == null || dim == null) return;
+			Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, 1.0F));
+			AtlasExporter.export(dim, worldAtlasData, tileChunks, !state.is(HIDING_MARKERS), message -> Minecraft.getInstance().gui.getChat().addMessage(message));
 		});
 
 		addChild(markerScrollBox).setRelativeCoords(-14, MAP_BORDER_HEIGHT + 8);

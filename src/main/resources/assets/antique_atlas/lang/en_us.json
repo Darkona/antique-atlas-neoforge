@@ -62,5 +62,9 @@
 	"gui.antique_atlas.copiedCoordinates": "Copied coordinates: %s",
 	"gui.antique_atlas.marker.death.owner": "%s: %s",
 	"gui.antique_atlas.handheldZoom": "Handheld atlas: %s chunks per tile",
-	"antique_atlas.configuration.pickStructureMarkers": "Structure icons for your markers"
+	"antique_atlas.configuration.pickStructureMarkers": "Structure icons for your markers",
+	"gui.antique_atlas.exportImage": "Export map as image",
+	"gui.antique_atlas.export.success": "Saved the map as %s (%s x %s pixels, %s chunks per tile)",
+	"gui.antique_atlas.export.failure": "Couldn't export the map: %s",
+	"gui.antique_atlas.export.empty": "Nothing explored in this dimension yet"
 }

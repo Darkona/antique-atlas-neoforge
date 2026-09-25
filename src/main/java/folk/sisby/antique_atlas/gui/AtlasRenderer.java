@@ -61,6 +61,7 @@ public interface AtlasRenderer {
 	ResourceLocation ICON_SHOW_MARKERS = AntiqueAtlas.id("textures/gui/icons/show_markers.png");
 	ResourceLocation ICON_HIDE_MARKERS = AntiqueAtlas.id("textures/gui/icons/hide_markers.png");
 	ResourceLocation ICON_UNKNOWN = AntiqueAtlas.id("textures/gui/icons/unknown.png");
+	ResourceLocation ICON_EXPORT = AntiqueAtlas.id("textures/gui/icons/export.png");
 	Component TEXT_ADD_MARKER = Component.translatable("gui.antique_atlas.addMarker");
 	Component TEXT_ADD_MARKER_HERE = Component.translatable("gui.antique_atlas.addMarkerHere");
 
