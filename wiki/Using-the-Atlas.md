@@ -24,10 +24,21 @@ On the right edge of the book:
 | **Delete marker** | Click it, then click one of your markers to remove it. |
 | **Hide / show markers** | Clear the map of markers, or bring them back. |
 | **Scale** | Shows how many chunks one tile covers; click to reset the zoom. |
+| **Export map as image** | Saves the whole explored area of the dimension you are looking at as a PNG image. |
 
 On the left edge is the list of your markers: click one to jump to it.
 
 **Middle-click** any marker to copy its coordinates (`x y z`) to the clipboard.
+
+### Exporting the map
+
+The export bookmark saves the whole explored area of the shown dimension, not only the part on screen, to
+`screenshots/atlas/<dimension>-<date>.png` in your game folder. Click the link in the chat to open the file.
+
+- The image uses 16 pixels per tile, starting from your current zoom. If the area is too large for 4096 x 4096 pixels,
+  the export zooms out (2, 4, 8... chunks per tile) until it fits. The chat message shows the scale it used.
+- Markers are included, unless you hid them with **Hide markers**. Player icons are not.
+- Unexplored areas are drawn as blank page.
 
 ![Adding a marker](images/atlas-marker-editor.png)
 
