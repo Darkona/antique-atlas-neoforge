@@ -66,5 +66,10 @@
 	"gui.antique_atlas.exportImage": "Export map as image",
 	"gui.antique_atlas.export.success": "Saved the map as %s (%s x %s pixels, %s chunks per tile)",
 	"gui.antique_atlas.export.failure": "Couldn't export the map: %s",
-	"gui.antique_atlas.export.empty": "Nothing explored in this dimension yet"
+	"gui.antique_atlas.export.empty": "Nothing explored in this dimension yet",
+	"antique_atlas.configuration.minimap": "Minimap",
+	"antique_atlas.configuration.minimapCorner": "Minimap corner",
+	"antique_atlas.configuration.minimapSize": "Minimap size",
+	"antique_atlas.configuration.minimapTileChunks": "Minimap chunks per tile",
+	"antique_atlas.configuration.minimapMarkers": "Markers on the minimap"
 }

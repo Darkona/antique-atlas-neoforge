@@ -37,6 +37,35 @@ public class AntiqueAtlasConfig {
 		EMPTY
 	}
 
+	public enum MinimapCorner {
+		TOP_LEFT(false, false),
+		TOP_RIGHT(true, false),
+		BOTTOM_LEFT(false, true),
+		BOTTOM_RIGHT(true, true);
+
+		/**
+		 * Space between the screen edge and the minimap's frame, and the frame's width, in GUI pixels.
+		 */
+		public static final int MARGIN = 4, FRAME = 2;
+		private final boolean right, bottom;
+
+		MinimapCorner(boolean right, boolean bottom) {
+			this.right = right;
+			this.bottom = bottom;
+		}
+
+		/**
+		 * @return the left edge of a minimap map area of this size, inside its frame.
+		 */
+		public int left(int screenWidth, int size) {
+			return right ? screenWidth - MARGIN - FRAME - size : MARGIN + FRAME;
+		}
+
+		public int top(int screenHeight, int size) {
+			return bottom ? screenHeight - MARGIN - FRAME - size : MARGIN + FRAME;
+		}
+	}
+
 	public enum StructureMarkerPicking {
 		AUTO,
 		ON,
@@ -56,6 +85,11 @@ public class AntiqueAtlasConfig {
 	public EmptyHandling emptyHandling = EmptyHandling.EMPTY;
 	public StructureMarkerPicking pickStructureMarkers = StructureMarkerPicking.AUTO;
 	public Map<String, Boolean> structureMarkers = new LinkedHashMap<>(Map.of("minecraft:type/end_city", false));
+	public boolean minimap = false;
+	public MinimapCorner minimapCorner = MinimapCorner.TOP_LEFT;
+	public int minimapSize = 96;
+	public int minimapTileChunks = 1;
+	public boolean minimapMarkers = true;
 	public Dimensions dimensions = new Dimensions();
 
 	public static class Dimensions {
@@ -116,6 +150,11 @@ public class AntiqueAtlasConfig {
 	private static final ModConfigSpec.EnumValue<EmptyHandling> EMPTY_HANDLING;
 	private static final ModConfigSpec.EnumValue<StructureMarkerPicking> PICK_STRUCTURE_MARKERS;
 	private static final ModConfigSpec.ConfigValue<List<? extends String>> STRUCTURE_MARKERS;
+	private static final ModConfigSpec.BooleanValue MINIMAP;
+	private static final ModConfigSpec.EnumValue<MinimapCorner> MINIMAP_CORNER;
+	private static final ModConfigSpec.IntValue MINIMAP_SIZE;
+	private static final ModConfigSpec.IntValue MINIMAP_TILE_CHUNKS;
+	private static final ModConfigSpec.BooleanValue MINIMAP_MARKERS;
 	private static final ModConfigSpec.ConfigValue<List<? extends String>> DIMENSION_SCALES;
 
 	static {
@@ -140,6 +179,11 @@ public class AntiqueAtlasConfig {
 		PICK_STRUCTURE_MARKERS = b.comment("Whether structure marker icons can be picked for your own markers.", "AUTO: only on servers without Surveyor, where structures aren't discovered for you.").defineEnum("pickStructureMarkers", d.pickStructureMarkers);
 		STRUCTURE_MARKERS = b.comment("Whether to show each structure marker, as \"structure=true|false\". Unlisted structures are shown.", "Structures found in loaded resource packs are added here automatically.")
 			.defineListAllowEmpty("structureMarkers", toEntries(d.structureMarkers), () -> "", AntiqueAtlasConfig::isEntry);
+		MINIMAP = b.comment("Whether to show a small map in a corner of the screen (antique-atlas#254).", "Hidden while a screen, F1 or F3 is open; with requireItem, only while you carry an atlas.").define("minimap", d.minimap);
+		MINIMAP_CORNER = b.comment("The screen corner of the minimap").defineEnum("minimapCorner", d.minimapCorner);
+		MINIMAP_SIZE = b.comment("The side of the minimap, in GUI pixels (one block per pixel at one chunk per tile)").defineInRange("minimapSize", d.minimapSize, 48, 256);
+		MINIMAP_TILE_CHUNKS = b.comment("Chunks per tile on the minimap: 1, 2 or 4 (3 counts as 2)").defineInRange("minimapTileChunks", d.minimapTileChunks, 1, 4);
+		MINIMAP_MARKERS = b.comment("Whether the minimap shows markers").define("minimapMarkers", d.minimapMarkers);
 		b.push("dimensions");
 		DIMENSION_SCALES = b.comment("Cycle order and coordinate scales of each dimension, as \"dimension=scale\".", "If not 0, the relative position of the player will be shown.")
 			.defineListAllowEmpty("scales", toEntries(d.dimensions.scales), () -> "", AntiqueAtlasConfig::isEntry);
@@ -161,6 +205,11 @@ public class AntiqueAtlasConfig {
 		emptyHandling = EMPTY_HANDLING.get();
 		pickStructureMarkers = PICK_STRUCTURE_MARKERS.get();
 		structureMarkers = fromEntries(STRUCTURE_MARKERS.get(), Boolean::parseBoolean);
+		minimap = MINIMAP.get();
+		minimapCorner = MINIMAP_CORNER.get();
+		minimapSize = MINIMAP_SIZE.get();
+		minimapTileChunks = Integer.highestOneBit(MINIMAP_TILE_CHUNKS.get());
+		minimapMarkers = MINIMAP_MARKERS.get();
 		dimensions.scales = fromEntries(DIMENSION_SCALES.get(), Integer::parseInt);
 		dimensions.invalidate();
 	}

@@ -1,6 +1,7 @@
 package folk.sisby.antique_atlas;
 
 import folk.sisby.antique_atlas.gui.AtlasScreen;
+import folk.sisby.antique_atlas.gui.MinimapLayer;
 import folk.sisby.antique_atlas.gui.core.ScreenState;
 import folk.sisby.antique_atlas.reloader.BiomeTileProviders;
 import folk.sisby.antique_atlas.reloader.DimensionConfigs;
@@ -56,6 +57,8 @@ import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.TagsUpdatedEvent;
@@ -199,6 +202,8 @@ public class AntiqueAtlas {
 			if (e.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) e.insertAfter(Items.MAP.getDefaultInstance(), getHandheldAtlas(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
 		});
 		modBus.addListener(ModelEvent.RegisterAdditional.class, e -> e.register(ATLAS_MODEL));
+		// Optional HUD minimap (antique-atlas#254); draws nothing unless enabled in the config
+		modBus.addListener(RegisterGuiLayersEvent.class, e -> e.registerBelow(VanillaGuiLayers.CHAT, id("minimap"), MinimapLayer::render));
 		NeoForge.EVENT_BUS.addListener(PlayerInteractEvent.RightClickItem.class, e -> {
 			if (e.getLevel().isClientSide() && e.getEntity().isShiftKeyDown() && isHandheldAtlas(e.getItemStack())) {
 				// Sneak + use zooms the handheld atlas out: 1, 2, 4 chunks per tile
