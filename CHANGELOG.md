@@ -36,6 +36,11 @@ here until the date listed.
 - A new bookmark saves the whole explored area of the shown dimension as a PNG in `screenshots/atlas/`, at 16 pixels per
   tile, zoomed out as needed to fit 4096 pixels. It doesn't use AWT, so it also works on macOS. (antique-atlas#216)
 
+### Minimap
+- An optional minimap in a corner of the screen, with the atlas's tiles, markers and other players. Off by default
+  (`minimap`); corner, size, chunks per tile and markers are configurable. It is hidden while a screen, F1 or F3 is
+  open, and respects `requireItem`. (antique-atlas#254)
+
 ### Handheld atlas
 - Sneak and use the atlas book to zoom the handheld map out: 1, 2 or 4 chunks per tile. (antique-atlas#353)
 - A book named with the translated atlas name, and the creative atlas in any language, work as an atlas; only the
