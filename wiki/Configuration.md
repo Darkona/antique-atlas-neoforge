@@ -26,6 +26,7 @@ Options live in `config/antique-atlas.toml`; you can also edit them in game from
 | `graveStyle` | `EUPHEMISMS` | How graves are labelled — see [Markers](Markers). |
 | `structureMarkers` | — | Show or hide each structure marker — see [Markers](Markers). |
 | `emptyHandling` | `EMPTY` | Unexplored areas: blank paper (`EMPTY`) or clouds (`CLOUDS`). |
+| `fadeEdges` | `false` | Tiles next to unexplored areas fade out towards them over half a tile, instead of ending in a hard edge. No effect with `emptyHandling = CLOUDS`. |
 | `fallbackFailHandling` | `MISSING` | A biome the atlas can't recognise: draw `???` (`MISSING`), draw plains (`PLAINS`), a test pattern (`TEST`), or stop the game with an error (`CRASH`) — see [Troubleshooting](Troubleshooting). |
 | `chunkTickLimit` | `100` | Chunks drawn per tick while loading a world's map. Lower it if joining a world stutters. |
 
