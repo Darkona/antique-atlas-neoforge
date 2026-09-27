@@ -252,4 +252,11 @@ class AtlasSourceGuardTest {
 		assertFalse(read("WorldAtlasData.java").contains("as.updateBookmarkerList()"), "each landmark event rebuilt every bookmark and reset the scroll");
 		assertTrue(read("gui/AtlasScreen.java").contains("if (bookmarksDirty) {"));
 	}
+
+	@Test
+	@DisplayName("Pinned markers fade at all four edges of the map")
+	void pinnedMarkersFadeOnEverySide() throws IOException {
+		String src = read("gui/AtlasScreen.java");
+		assertTrue(src.contains("x <= MAP_BORDER_WIDTH || x >= mapWidth + MAP_BORDER_WIDTH || y <= MAP_BORDER_HEIGHT || y >= mapHeight + MAP_BORDER_HEIGHT"), "left and top edges must fade like right and bottom");
+	}
 }
