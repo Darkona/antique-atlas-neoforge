@@ -121,6 +121,11 @@ public class TileRenderIterator implements Iterator<SubTileQuartet>, Iterable<Su
 		_e.texture = e;
 		_h.texture = h;
 		_i.texture = i;
+		// Unexplored neighbours of each subtile, for the edge fade (antique-atlas#87)
+		_d.fade = SubTile.fadeFlags(e, h, i);
+		_e.fade = SubTile.fadeFlags(d, i, h);
+		_h.fade = SubTile.fadeFlags(i, d, e);
+		_i.fade = SubTile.fadeFlags(h, e, d);
 
 		// At first assume all convex:
 		_d.shape = Shape.CONVEX;

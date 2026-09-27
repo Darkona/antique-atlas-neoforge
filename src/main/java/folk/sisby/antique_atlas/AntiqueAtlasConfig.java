@@ -83,6 +83,7 @@ public class AntiqueAtlasConfig {
 	public int chunkTickLimit = 100;
 	public FallbackHandling fallbackFailHandling = FallbackHandling.MISSING;
 	public EmptyHandling emptyHandling = EmptyHandling.EMPTY;
+	public boolean fadeEdges = false;
 	public StructureMarkerPicking pickStructureMarkers = StructureMarkerPicking.AUTO;
 	public Map<String, Boolean> structureMarkers = new LinkedHashMap<>(Map.of("minecraft:type/end_city", false));
 	public boolean minimap = false;
@@ -148,6 +149,7 @@ public class AntiqueAtlasConfig {
 	private static final ModConfigSpec.IntValue CHUNK_TICK_LIMIT;
 	private static final ModConfigSpec.EnumValue<FallbackHandling> FALLBACK_FAIL_HANDLING;
 	private static final ModConfigSpec.EnumValue<EmptyHandling> EMPTY_HANDLING;
+	private static final ModConfigSpec.BooleanValue FADE_EDGES;
 	private static final ModConfigSpec.EnumValue<StructureMarkerPicking> PICK_STRUCTURE_MARKERS;
 	private static final ModConfigSpec.ConfigValue<List<? extends String>> STRUCTURE_MARKERS;
 	private static final ModConfigSpec.BooleanValue MINIMAP;
@@ -176,6 +178,7 @@ public class AntiqueAtlasConfig {
 		CHUNK_TICK_LIMIT = b.comment("The maximum number of chunks to load onto the map per tick after entering a world").defineInRange("chunkTickLimit", d.chunkTickLimit, 1, Integer.MAX_VALUE);
 		FALLBACK_FAIL_HANDLING = b.comment("How to handle biomes that aren't in any minecraft, conventional, or forge biome tags").defineEnum("fallbackFailHandling", d.fallbackFailHandling);
 		EMPTY_HANDLING = b.comment("How to display areas that aren't explored yet").defineEnum("emptyHandling", d.emptyHandling);
+		FADE_EDGES = b.comment("Whether tiles next to unexplored areas fade out towards them, instead of ending in a hard edge (antique-atlas#87)").define("fadeEdges", d.fadeEdges);
 		PICK_STRUCTURE_MARKERS = b.comment("Whether structure marker icons can be picked for your own markers.", "AUTO: only on servers without Surveyor, where structures aren't discovered for you.").defineEnum("pickStructureMarkers", d.pickStructureMarkers);
 		STRUCTURE_MARKERS = b.comment("Whether to show each structure marker, as \"structure=true|false\". Unlisted structures are shown.", "Structures found in loaded resource packs are added here automatically.")
 			.defineListAllowEmpty("structureMarkers", toEntries(d.structureMarkers), () -> "", AntiqueAtlasConfig::isEntry);
@@ -203,6 +206,7 @@ public class AntiqueAtlasConfig {
 		chunkTickLimit = CHUNK_TICK_LIMIT.get();
 		fallbackFailHandling = FALLBACK_FAIL_HANDLING.get();
 		emptyHandling = EMPTY_HANDLING.get();
+		fadeEdges = FADE_EDGES.get();
 		pickStructureMarkers = PICK_STRUCTURE_MARKERS.get();
 		structureMarkers = fromEntries(STRUCTURE_MARKERS.get(), Boolean::parseBoolean);
 		minimap = MINIMAP.get();

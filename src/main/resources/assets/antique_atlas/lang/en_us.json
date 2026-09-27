@@ -71,5 +71,6 @@
 	"antique_atlas.configuration.minimapCorner": "Minimap corner",
 	"antique_atlas.configuration.minimapSize": "Minimap size",
 	"antique_atlas.configuration.minimapTileChunks": "Minimap chunks per tile",
-	"antique_atlas.configuration.minimapMarkers": "Markers on the minimap"
+	"antique_atlas.configuration.minimapMarkers": "Markers on the minimap",
+	"antique_atlas.configuration.fadeEdges": "Fade edges of explored area"
 }

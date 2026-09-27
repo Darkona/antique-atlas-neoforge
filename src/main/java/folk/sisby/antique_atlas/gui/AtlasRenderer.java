@@ -266,6 +266,7 @@ public interface AtlasRenderer {
 		matrices.scale(effectiveScale, effectiveScale, 1.0F);
 
 		int subTilePixels = tilePixels() / 2;
+		boolean fade = AntiqueAtlas.CONFIG.fadeEdges;
 		for (ObjectIterator<Reference2ObjectMap.Entry<TileTexture, IntArrayList>> it = TileBatch.collect(tiles).reference2ObjectEntrySet().fastIterator(); it.hasNext(); ) {
 			Reference2ObjectMap.Entry<TileTexture, IntArrayList> batch = it.next();
 			IntArrayList subtiles = batch.getValue();
@@ -277,7 +278,9 @@ public interface AtlasRenderer {
 					int drawY = data[i + 1] * subTilePixels;
 					// a non-scope bounds check allows subtile-level accuracy, and keeps border tiling accurate.
 					if (drawX * effectiveScale > mapX + mapWidth() - mapStartScreenX || drawY * effectiveScale > mapY + mapHeight() - mapStartScreenY || (drawX + subTilePixels) * effectiveScale < mapX - mapStartScreenX || (drawY + subTilePixels) * effectiveScale < mapY - mapStartScreenY) continue;
-					batcher.add(drawX, drawY, 0, subTilePixels, subTilePixels, data[i + 2] * 8, data[i + 3] * 8, 8, 8, 0xFFFFFFFF);
+					int faded = fade ? data[i + 4] : 0;
+					if (faded == 0) batcher.add(drawX, drawY, 0, subTilePixels, subTilePixels, data[i + 2] * 8, data[i + 3] * 8, 8, 8, 0xFFFFFFFF);
+					else batcher.addFaded(drawX, drawY, 0, subTilePixels, subTilePixels, data[i + 2] * 8, data[i + 3] * 8, 8, 8, 0xFFFFFFFF, faded); // antique-atlas#87
 				}
 			}
 		}

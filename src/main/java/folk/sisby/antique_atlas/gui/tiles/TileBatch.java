@@ -5,7 +5,10 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectLinkedOpenHashMap;
 
 public final class TileBatch {
-	public static final int STRIDE = 4;
+	/**
+	 * Ints per subtile: x, y, texture u, texture v, faded vertices ({@link SubTile#fadeCorners()}).
+	 */
+	public static final int STRIDE = 5;
 
 	private static final Reference2ObjectLinkedOpenHashMap<TileTexture, IntArrayList> BATCHES = new Reference2ObjectLinkedOpenHashMap<>();
 
@@ -32,6 +35,7 @@ public final class TileBatch {
 				list.add(subtile.y);
 				list.add(subtile.getTextureU());
 				list.add(subtile.getTextureV());
+				list.add(subtile.fadeCorners());
 			}
 		}
 		return BATCHES;
