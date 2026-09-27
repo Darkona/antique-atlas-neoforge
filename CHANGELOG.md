@@ -24,6 +24,8 @@ here until the date listed.
   you rejoined. (antique-atlas#243)
 - The book frame's soft edge over the map is translucent again. (antique-atlas#358)
 - Hovering your own player icon no longer shifts everything drawn after it in that frame.
+- Option `fadeEdges` (off by default): tiles next to unexplored areas fade out towards them instead of ending in a hard
+  square edge. (antique-atlas#87)
 - The map updates when terrain changes, instead of keeping the old drawing until you rejoin.
 - A dimension explored along a single row of chunks is no longer hidden from the dimension list.
 - The first tile of the drawn area, and the last row and column when zoomed out, were only half drawn (inside the
