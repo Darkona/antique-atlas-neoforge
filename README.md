@@ -61,6 +61,10 @@ This fork keeps Antique Atlas' features, art, resource-pack format and mod id. I
 - Structure icons can be picked for your own markers (by default only on servers without Surveyor). Option `pickStructureMarkers`.
 - Markers without their own texture, such as waypoints from other mods, use their item's texture; resource packs can list more items and item tags per marker texture.
 - Resource packs choose which tile draws water, swamp water, ice and lava, and can add their own features by block, block tag, biome or biome tag in `atlas/features/*.json`.
+- Resource packs set how each dimension's terrain is read in `atlas/dimension/*.json`: surface or nether-style scan, sea level, scan height, ravines and the tile for the void. Modded dimensions can be drawn with their own settings.
+- The atlas can save the whole explored area of a dimension as a PNG image (`screenshots/atlas/`), without AWT, so it also works on macOS.
+- An optional minimap in a corner of the screen, with tiles, markers and other players. Option `minimap`, off by default.
+- Tiles next to unexplored areas can fade out instead of ending in a hard edge. Option `fadeEdges`, off by default.
 
 **Performance**
 - Holding the atlas no longer triggers an expensive check for shader mods hundreds of times per frame.
