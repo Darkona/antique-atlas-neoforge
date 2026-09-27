@@ -1,8 +1,9 @@
 # Changelog
 
-Changes of this NeoForge fork, by date and feature. Issue numbers such as `antique-atlas#358` refer to the
+Changes of this NeoForge fork, by date and feature. Links such as `antique-atlas#358` go to the
 [original project's issues](https://github.com/sisby-folk/antique-atlas/issues); the bugs they describe also existed
-here until the date listed.
+here until the date listed. "Closes" means this fork fully handles that bug or feature request. "Partly addresses"
+means it handles only the part the entry describes. "Answers" means the issue is a question, answered in the wiki.
 
 ## 2026-09-28
 
@@ -14,18 +15,20 @@ here until the date listed.
   entries.
 
 ### Configuration
-- The mod list's Config button opens a config screen with every option; it used to be disabled. (antique-atlas#390,
-  antique-atlas#372)
+- The mod list's Config button opens a config screen with every option; it used to be disabled. Closes [antique-atlas#390](https://github.com/sisby-folk/antique-atlas/issues/390)
+  and [antique-atlas#372](https://github.com/sisby-folk/antique-atlas/issues/372).
+- The wiki explains who sees whom on the map: the server decides it with Surveyor's `networking.positions` option.
+  Answers [antique-atlas#393](https://github.com/sisby-folk/antique-atlas/issues/393).
 
 ### Map drawing
 - Joining another share group redraws the map from the new group's exploration; the old group's areas used to stay.
-  (antique-atlas#343)
+  Closes [antique-atlas#343](https://github.com/sisby-folk/antique-atlas/issues/343), with Surveyor for NeoForge's new `ExplorationReset` event.
 - Reloading resources (F3+T) redraws the atlas with the new textures and tile rules; it used to keep the old ones until
-  you rejoined. (antique-atlas#243)
-- The book frame's soft edge over the map is translucent again. (antique-atlas#358)
+  you rejoined. Closes [antique-atlas#243](https://github.com/sisby-folk/antique-atlas/issues/243).
+- The book frame's soft edge over the map is translucent again. Closes [antique-atlas#358](https://github.com/sisby-folk/antique-atlas/issues/358).
 - Hovering your own player icon no longer shifts everything drawn after it in that frame.
 - Option `fadeEdges` (off by default): tiles next to unexplored areas fade out towards them instead of ending in a hard
-  square edge. (antique-atlas#87)
+  square edge. Closes [antique-atlas#87](https://github.com/sisby-folk/antique-atlas/issues/87).
 - The map updates when terrain changes, instead of keeping the old drawing until you rejoin.
 - A dimension explored along a single row of chunks is no longer hidden from the dimension list.
 - The first tile of the drawn area, and the last row and column when zoomed out, were only half drawn (inside the
@@ -36,34 +39,35 @@ here until the date listed.
 
 ### Map export
 - A new bookmark saves the whole explored area of the shown dimension as a PNG in `screenshots/atlas/`, at 16 pixels per
-  tile, zoomed out as needed to fit 4096 pixels. It doesn't use AWT, so it also works on macOS. (antique-atlas#216)
+  tile, zoomed out as needed to fit 4096 pixels. It doesn't use AWT, so it also works on macOS. Closes [antique-atlas#216](https://github.com/sisby-folk/antique-atlas/issues/216).
 
 ### Minimap
 - An optional minimap in a corner of the screen, with the atlas's tiles, markers and other players. Off by default
   (`minimap`); corner, size, chunks per tile and markers are configurable. It is hidden while a screen, F1 or F3 is
-  open, and respects `requireItem`. (antique-atlas#254)
+  open, and respects `requireItem`. Closes [antique-atlas#254](https://github.com/sisby-folk/antique-atlas/issues/254).
 
 ### Handheld atlas
-- Sneak and use the atlas book to zoom the handheld map out: 1, 2 or 4 chunks per tile. (antique-atlas#353)
+- Sneak and use the atlas book to zoom the handheld map out: 1, 2 or 4 chunks per tile. Closes [antique-atlas#353](https://github.com/sisby-folk/antique-atlas/issues/353).
 - A book named with the translated atlas name, and the creative atlas in any language, work as an atlas; only the
-  English name worked before. (antique-atlas#367)
+  English name worked before. Closes [antique-atlas#367](https://github.com/sisby-folk/antique-atlas/issues/367).
 
 ### Markers
-- Middle-click a marker to copy its coordinates. (antique-atlas#169)
+- Middle-click a marker to copy its coordinates. Closes [antique-atlas#169](https://github.com/sisby-folk/antique-atlas/issues/169).
 - Structure icons can be picked for your own markers: by default only on servers without Surveyor, where structures
-  aren't discovered for you. Option `pickStructureMarkers`. (antique-atlas#171)
-- Other players' graves show their owner's name. (antique-atlas#342)
+  aren't discovered for you. Option `pickStructureMarkers`. Closes [antique-atlas#171](https://github.com/sisby-folk/antique-atlas/issues/171).
+- Other players' graves show their owner's name. Closes [antique-atlas#342](https://github.com/sisby-folk/antique-atlas/issues/342).
 - The list of your markers keeps the same order every session.
 - Pinned markers at the edge of the map fade the same way on all four sides.
 - The bookmark lists keep their scroll position when markers are added or removed while the atlas is open.
 - Grave markers show their text on systems set to Turkish, instead of raw translation keys.
 - Markers of landmarks without their own texture (e.g. waypoints from other mods) use the texture of their item;
-  resource packs can list more items and item tags per marker texture. (antique-atlas#350)
+  resource packs can list more items and item tags per marker texture. Partly addresses [antique-atlas#350](https://github.com/sisby-folk/antique-atlas/issues/350): the texture
+  mapping, not dedicated art for any item.
 
 ### Resource packs
 - Resource packs choose which tile draws water, swamp water, ice and lava, and can add their own features by block,
   block tag, biome or biome tag, in `atlas/features/*.json`. The built-in rules draw the map as before.
-  (antique-atlas#318)
+  Closes [antique-atlas#318](https://github.com/sisby-folk/antique-atlas/issues/318).
 - A malformed `.mcmeta` on a tile, marker or dimension icon texture is logged and ignored. It used to fail the resource
   reload (turning every resource pack off) or crash the game when the atlas opened.
 - A tile texture without `.mcmeta` named in another texture's `tilesToThis` no longer fails the resource reload, and a
@@ -75,8 +79,8 @@ here until the date listed.
   structure, not only its start chunk.
 - Resource packs set how the map reads each dimension in `atlas/dimension/*.json`: surface or nether-style scan, sea
   level, scan height, ravines and the tile for the void. Modded dimensions (sky islands, deep caves) can now be drawn
-  with their own settings; the built-in files draw the vanilla dimensions as before. (antique-atlas#77,
-  antique-atlas#249)
+  with their own settings; the built-in files draw the vanilla dimensions as before. Closes
+  [antique-atlas#77](https://github.com/sisby-folk/antique-atlas/issues/77) and [antique-atlas#249](https://github.com/sisby-folk/antique-atlas/issues/249).
 
 ### Stability
 - Singleplayer is safe from races between the game and its built-in server, which could crash the game while the map
