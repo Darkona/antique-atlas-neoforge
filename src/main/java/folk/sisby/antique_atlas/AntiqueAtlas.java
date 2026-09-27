@@ -151,6 +151,10 @@ public class AntiqueAtlas {
 		return handheldZoom;
 	}
 
+	static int nextHandheldZoom(int zoom) {
+		return zoom >= 4 ? 1 : zoom * 2;
+	}
+
 	public static boolean hasHandheldAtlas(Player player) {
 		if (isHandheldAtlas(player.getOffhandItem())) return true;
 		for (ItemStack itemStack : player.getInventory().items) {
@@ -207,7 +211,7 @@ public class AntiqueAtlas {
 		NeoForge.EVENT_BUS.addListener(PlayerInteractEvent.RightClickItem.class, e -> {
 			if (e.getLevel().isClientSide() && e.getEntity().isShiftKeyDown() && isHandheldAtlas(e.getItemStack())) {
 				// Sneak + use zooms the handheld atlas out: 1, 2, 4 chunks per tile
-				handheldZoom = handheldZoom >= 4 ? 1 : handheldZoom * 2;
+				handheldZoom = nextHandheldZoom(handheldZoom);
 				e.getEntity().displayClientMessage(Component.translatable("gui.antique_atlas.handheldZoom", handheldZoom), true);
 				e.setCancellationResult(InteractionResult.SUCCESS);
 				e.setCanceled(true);
