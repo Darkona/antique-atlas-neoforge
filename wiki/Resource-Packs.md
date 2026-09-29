@@ -10,13 +10,11 @@
 
 ![test tile texture](https://github.com/sisby-folk/antique-atlas/blob/1.20/src/main/resources/assets/antique_atlas/textures/atlas/tile/test.png?raw=true) ![square plateau texture](https://github.com/sisby-folk/antique-atlas/blob/1.20/src/main/resources/assets/antique_atlas/textures/atlas/tile/base/plateau_square.png?raw=true) ![savanna house](https://github.com/sisby-folk/antique-atlas/blob/1.20/src/main/resources/assets/antique_atlas/textures/atlas/tile/structure/village/savanna/small_house.png?raw=true) ![nether bridge crossing](https://github.com/sisby-folk/antique-atlas/blob/1.20/src/main/resources/assets/antique_atlas/textures/atlas/tile/structure/fortress/nether/nether_fortress_bridge_crossing.png?raw=true)
 
-Tiles are in an autotile-like format.<br/>
-They're split into 8x8 "subtiles", each being drawn depending on which of the neighbouring textures are "tiling" to them:
+Tiles use a format like autotiles. Each tile is split into 8x8 "subtiles". The atlas draws each subtile based on which neighbouring textures "tile" to it:
 
 ![autotile guide](https://github.com/sisby-folk/antique-atlas/assets/55819817/92ebcd3e-b189-429a-9ad0-667bc26a0ed6)
 
-The top left subtiles are used for tight outer corners, the top right used for inner corners, and the bottom subtiles are used for larger contiguous areas.<br/>
-Because of this, the center 4 tiles must tile to themselves in order for the texture to appear without seams - this is often achieved by leaving it almost blank as above.
+The top left subtiles are for tight outer corners, the top right subtiles are for inner corners, and the bottom subtiles are for larger connected areas. Because of this, the 4 center subtiles must tile to themselves, or the texture shows seams. The usual way to do this is to leave them almost blank, as above.
 
 #### Metafile
 
@@ -36,15 +34,17 @@ Because of this, the center 4 tiles must tile to themselves in order for the tex
 }
 ```
 
-The metafile is used entirely to control which other textures should be "tiled" to.<br/>
-That is, when "connecting" subtiles should be used instead of the border ones when it is a neighbour.
+The metafile only controls which other textures this texture "tiles" to. When a neighbour tiles to it, the atlas draws the "connecting" subtiles instead of the border subtiles.
 
-The `parent` field can be used to inherit all fields from another texture - most biomes inherit from a "base" that provides a terrain shape.<br/>
-The `tag` field can be used to add this texture to a group, used when specifying tiling.<br/>
-The `tilesTo`, `tilesToVertical`, and `tilesToHorizontal` arrays make this texture connect to those specified.<br/>
-The `tilesToThis`, `tilesToThisVertical`, and `tilesToThisHorizontal` arrays make the *specified* textures connect to this one instead.
+The `parent` field inherits all fields from another texture. Most biomes inherit from a "base" texture that gives the terrain shape.
 
-This takes some time to unpick and has a lot of redundant options - peruse the [builtin pack](https://github.com/sisby-folk/antique-atlas/tree/1.20/src/main/resources/assets/antique_atlas/textures/atlas/tile) for usage examples and always be sure to test in-game.
+The `tags` field adds this texture to a group, which you can use when you specify tiling.
+
+The `tilesTo`, `tilesToVertical` and `tilesToHorizontal` arrays make this texture connect to the textures they name.
+
+The `tilesToThis`, `tilesToThisVertical` and `tilesToThisHorizontal` arrays do the opposite: they make the *named* textures connect to this one.
+
+These options take time to understand, and many of them overlap. Look at the [builtin pack](https://github.com/sisby-folk/antique-atlas/tree/1.20/src/main/resources/assets/antique_atlas/textures/atlas/tile) for examples, and always test in game.
 
 ### Marker Textures
 
@@ -54,13 +54,11 @@ This takes some time to unpick and has a lot of redundant options - peruse the [
 
 ![unknown marker texture](https://github.com/sisby-folk/antique-atlas/blob/1.20/src/main/resources/assets/antique_atlas/textures/atlas/marker/unknown.png?raw=true) ![tower marker texture](https://github.com/sisby-folk/antique-atlas/blob/1.20/src/main/resources/assets/antique_atlas/textures/atlas/marker/custom/tower.png?raw=true) ![tower accent texture](https://github.com/sisby-folk/antique-atlas/blob/1.20/src/main/resources/assets/antique_atlas/textures/atlas/marker/custom/tower_accent.png?raw=true) ![x marker texture](https://github.com/sisby-folk/antique-atlas/blob/1.20/src/main/resources/assets/antique_atlas/textures/atlas/marker/custom/red_x_large.png?raw=true) ![x accent](https://github.com/sisby-folk/antique-atlas/blob/1.20/src/main/resources/assets/antique_atlas/textures/atlas/marker/custom/red_x_large_accent.png?raw=true)
 
-Markers without metafiles are 32x32 and displayed centered on the cursor.<br/>
-If a marker is in the `custom/` subfolder, it will be added to the "add marker" modal in-game.
+A marker without a metafile is 32x32 and is drawn centered on the cursor. A marker in the `custom/` subfolder is added to the "add marker" window in game.
 
-An optional `*_accent.png` can be added which will be drawn directly over the main texture, tinted to the dye colour of the landmark.
+An optional `*_accent.png` is drawn directly over the main texture, tinted to the dye colour of the landmark.
 
-To texture non-custom markers, note that the closest texture ID to the landmark ID will be used whenever possible.<br/>
-e.g. the landmark `surveyor:player_death/void/29/71/-100` try to use `surveyor/textures/atlas/marker/player_death/void.png`, then `surveyor/textures/atlas/marker/player_death.png`, then `surveyor/textures/atlas/marker/default.png`.
+For markers that are not custom, the atlas uses the texture ID that is closest to the landmark ID. For example, the landmark `surveyor:player_death/void/29/71/-100` tries `surveyor/textures/atlas/marker/player_death/void.png`, then `surveyor/textures/atlas/marker/player_death.png`, then `surveyor/textures/atlas/marker/default.png`.
 
 #### Metafile
 
@@ -76,10 +74,9 @@ e.g. the landmark `surveyor:player_death/void/29/71/-100` try to use `surveyor/t
 }
 ```
 
-The metafile is used to adjust texture rendering specifics for the marker.
+The metafile adjusts how the atlas draws the marker.
 
-The `items` field lists item ids or item tags (`#namespace:tag`). A landmark without a texture of its own (e.g. a
-waypoint from another mod) that carries one of these items is drawn with this texture:
+The `items` field lists item ids or item tags (`#namespace:tag`). A landmark without its own texture (for example, a waypoint from another mod) that carries one of these items is drawn with this texture:
 
 ```json5
 // custom/tower.png.mcmeta
@@ -91,15 +88,13 @@ waypoint from another mod) that carries one of these items is drawn with this te
 }
 ```
 
-The `item` field is the item shown for the texture in the "add marker" picker; it also picks the texture, like `items`.
+The `item` field is the item that the "add marker" picker shows for the texture. Like `items`, it also selects the texture.
 
-This can be used to create abnormally large (`textureWidth` and `textureHeight`) or uncentered (`offsetX` and `offsetY`) markers as above.<br/>
-The offset is how the texture should be panned relative to the top left of the texture - this is `-width/2` and `-height/2` by default (centered).
+With these fields you can make very large markers (`textureWidth` and `textureHeight`) or markers that are not centered (`offsetX` and `offsetY`), as above. The offset moves the texture relative to its top left corner. By default it is `-width/2` and `-height/2` (centered).
 
 ![end city marker](https://github.com/sisby-folk/antique-atlas/blob/1.20/src/main/resources/assets/antique_atlas/textures/atlas/marker/structure/end_city.png?raw=true)
 
-The `mipLevels` field allows power-of-two mipmap textures to be added to the right of the main texture.<br/>
-In the end city example, the first mip level is 32x32, then the second mip level is 16x16 - for a total of 2 mip levels. (and a 112x64 texture, which is calculated for you)
+The `mipLevels` field adds power-of-two mipmap textures to the right of the main texture. In the end city example, the first mip level is 32x32 and the second is 16x16, so there are 2 mip levels. The texture is 112x64, and the atlas calculates that size for you.
 
 ## Biome Tiles (Biome Tile Providers)
 
@@ -112,17 +107,17 @@ In the end city example, the first mip level is 32x32, then the second mip level
 }
 ```
 
-The `parent` field allows deferring the entire definition of the biome to another existing biome's - useful for quickly configuring modpacks.
+The `parent` field uses the full definition of another existing biome for this biome. This is a fast way to configure modpacks.
 
-Otherwise, the `textures` field is used to directly set the textures for the biome.
+If there is no `parent`, the `textures` field sets the textures for the biome directly.
 
-The field accepts a tile texture ID (without the `textures/atlas/tile/` part) - which is then used to represent the biome in the map.
+The field accepts a tile texture ID (without the `textures/atlas/tile/` part). The map uses that texture for the biome.
 
-It can also accept an array of texture IDs, which will be used at random, or a texture -> integer object, for randomness with weights.
+It also accepts an array of texture IDs, used at random, or an object of texture -> integer, for random choice with weights.
 
-Finally, the texture field also accepts an object with elevations - `valley`, `low`, `mid`, `high`, and `peak` - each accepting the above.
+Finally, the field also accepts an object with elevations: `valley`, `low`, `mid`, `high` and `peak`. Each one accepts the forms above.
 
-These will be used when the terrain is at Y <73, <83, <98, <113, and above respectively - adjusting to sea level changes.
+The atlas uses them when the terrain is at Y <73, <83, <98, <113 and above, in that order. These values move with the sea level.
 
 ```json5
 // assets/minecraft/atlas/biome/badlands
@@ -151,8 +146,7 @@ These will be used when the terrain is at Y <73, <83, <98, <113, and above respe
 
 > `assets/namespace/atlas/features/name.json`, one rule per file
 
-Feature rules pick the tile for special terrain inside a chunk: water, swamp water, ice and lava. Each matching block
-column adds `priority` to its rule's tile; the tile with the highest total, among biomes and features, draws the chunk.
+Feature rules choose the tile for special terrain inside a chunk: water, swamp water, ice and lava. Each block column that matches a rule adds its `priority` to the tile of that rule. The tile with the highest total, among biomes and features, draws the chunk.
 
 ```json5
 // assets/antique_atlas/atlas/features/swamp_water.json
@@ -172,15 +166,11 @@ column adds `priority` to its rule's tile; the tile with the highest total, amon
 | `blocks`   | Block ids or `#tags` for the top block (under water: the floor). Empty or absent: any block.         |
 | `biomes`   | Biome ids or `#tags`. Empty or absent: any biome.                                                    |
 
-A rule that is not `water` needs `blocks` or `biomes`. If several rules match a column, the one with the highest
-`priority` wins, then a rule with `biomes`, then a rule with `blocks`, then the file id. At most 63 rules are used.
+A rule that is not `water` needs `blocks` or `biomes`. If more than one rule matches a column, the rule with the highest `priority` wins. On a tie, a rule with `biomes` wins, then a rule with `blocks`, then the file id. The atlas uses at most 63 rules.
 
-The built-in rules are `water` (4), `swamp_water` (4, `#c:swamp`), `ice` (3, `minecraft:ice`) and `lava` (6,
-`minecraft:lava`). In the nether they apply to the lava sea below Y 50; there, a column that matches no rule is lava
-shore. Ravines and empty chunks are not rules.
+The built-in rules are `water` (4), `swamp_water` (4, `#c:swamp`), `ice` (3, `minecraft:ice`) and `lava` (6, `minecraft:lava`). In the nether they apply to the lava sea below Y 50. There, a column that matches no rule is lava shore. Ravines and empty chunks are not rules.
 
-To change a built-in rule, put a file with the same path in your pack. To turn it off, use `{}`. To add one, for
-example tracks (a future use, antique-atlas#344):
+To change a built-in rule, put a file with the same path in your pack. To turn it off, use `{}`. To add a rule, for example for tracks (a future use, antique-atlas#344):
 
 ```json5
 // assets/mypack/atlas/features/rails.json
@@ -219,12 +209,11 @@ The `tile` must be a biome tile provider (`assets/mypack/atlas/biome/feature/rai
 }
 ```
 
-Structures are provided a `priority` field, which determines how whether they should appear on top of other structures if they appear in the same chunk.<br/>
-Lower is more important.
+The `priority` field of a structure decides whether it appears on top of other structures in the same chunk. A lower value is more important.
 
-Like biomes, structures use the `textures` field in the same manner for tile textures.
+Structures use the `textures` field for tile textures in the same way as biomes.
 
-Instead of elevation, structures instead have a variety of identified "Chunk Matchers" which determine whether the texture should appear, as well as over which chunks.
+Structures have no elevations. They have "Chunk Matchers", each with an ID, which decide whether the texture appears, and on which chunks.
 
 | ID                       | Behavior                                                                                     |
 |--------------------------|----------------------------------------------------------------------------------------------|
@@ -264,13 +253,13 @@ Instead of elevation, structures instead have a variety of identified "Chunk Mat
 }
 ```
 
-Just a direct reference to the marker texture (without the `texture/atlas/marker` part).
+The value is a direct reference to the marker texture (without the `textures/atlas/marker` part).
 
-The translation key is used for the tooltip, and matches the path used for the json file.
+The tooltip uses the translation key, which matches the path of the json file.
 
 ## Dimensions
 
-Dimensions are given custom bookmark icons from `namespace/textures/atlas/dimension/path.png`, with the optional metafile:
+Dimensions get custom bookmark icons from `namespace/textures/atlas/dimension/path.png`, with an optional metafile:
 ```json5
 // minecraft/textures/atlas/dimension/the_end.png.mcmeta
 {
@@ -281,15 +270,13 @@ Dimensions are given custom bookmark icons from `namespace/textures/atlas/dimens
 }
 ```
 
-Dimensions will otherwise use a question mark texture and a random color hashed from their ID.
+Without them, a dimension uses a question mark texture and a random color hashed from its ID.
 
 ### Terrain Settings
 
 > `assets/namespace/atlas/dimension/path.json` for dimension `namespace:path`
 
-These settings choose how the map reads a dimension's terrain. A dimension without a file uses the defaults below
-(the surface scan at sea level 63, no ravines, the empty tile for the void). Antique Atlas includes files for the
-Overworld, the Nether and the End.
+These settings choose how the map reads the terrain of a dimension. A dimension without a file uses the defaults below: the surface scan at sea level 63, no ravines, and the empty tile for the void. Antique Atlas includes files for the Overworld, the Nether and the End.
 
 ```json5
 // assets/minecraft/atlas/dimension/the_nether.json
@@ -321,4 +308,4 @@ To change a built-in dimension, put a file with the same path in your pack. For 
 }
 ```
 
-Changes apply after a resource reload (F3+T), which redraws the map.
+The changes apply after a resource reload (F3+T), which redraws the map.
