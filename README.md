@@ -65,6 +65,7 @@ This fork keeps Antique Atlas' features, art, resource-pack format and mod id. I
 - The atlas can save the whole explored area of a dimension as a PNG image (`screenshots/atlas/`), without AWT, so it also works on macOS.
 - An optional minimap in a corner of the screen, with tiles, markers and other players. Option `minimap`, off by default.
 - Tiles next to unexplored areas can fade out instead of ending in a hard edge. Option `fadeEdges`, off by default.
+- Debug mode (`debug`, or `-Dantique_atlas.debug=true`) logs what the atlas does, for bug reports and test runs.
 
 **Performance**
 - Holding the atlas no longer triggers an expensive check for shader mods hundreds of times per frame.
