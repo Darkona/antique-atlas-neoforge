@@ -44,6 +44,12 @@ shows while you carry an atlas.
 | `minimapTileChunks` | `1` | Chunks per tile: `1`, `2` or `4` (`3` counts as `2`). Higher values show a larger area. |
 | `minimapMarkers` | `true` | Show markers on the minimap. |
 
+## Troubleshooting
+
+| Option | Default | What it does |
+|---|---|---|
+| `debug` | `false` | Log what the atlas does to `latest.log`, for bug reports. See [Troubleshooting](Troubleshooting#debug-mode). |
+
 ## `[dimensions]`
 
 `scales` lists the dimensions in the order the atlas cycles through them, with their coordinate scale, e.g. `["minecraft:overworld=8", "minecraft:the_nether=1", "minecraft:the_end=0"]`. When two dimensions both have a scale, other players in the other dimension are shown where they would be in yours — so a player in the Nether shows up at the matching Overworld position. `0` means no such conversion.
