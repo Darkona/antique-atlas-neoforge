@@ -5,6 +5,18 @@ Changes of this NeoForge fork, by date and feature. Links such as `antique-atlas
 here until the date listed. "Closes" means this fork fully handles that bug or feature request. "Partly addresses"
 means it handles only the part the entry describes. "Answers" means the issue is a question, answered in the wiki.
 
+## 2026-09-29
+
+### Troubleshooting
+- New option `debug` (or the JVM argument `-Dantique_atlas.debug=true`): logs what the atlas does to `latest.log` with
+  the prefix `[Antique Atlas/debug]`, for bug reports and test runs. Rare events get a line each (rebuilds and their
+  cause, resource-pack rules, item marker textures, exports, minimap, handheld zoom); busy activity (tiles, markers) is
+  summed up every 100 ticks. Off, it costs nothing.
+
+### Tests
+- New coverage: terrain changes re-tile drawn chunks, the handheld zoom cycle, structure icon picking, pinned marker
+  fade, a config-screen label for every option, and debug mode.
+
 ## 2026-09-28
 
 ### NeoForge port
