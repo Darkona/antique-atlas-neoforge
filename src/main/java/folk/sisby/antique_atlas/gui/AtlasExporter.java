@@ -1,5 +1,6 @@
 package folk.sisby.antique_atlas.gui;
 
+import folk.sisby.antique_atlas.AtlasDebug;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.platform.NativeImage;
@@ -45,6 +46,7 @@ public record AtlasExporter(ExportLayout layout, WorldAtlasData worldAtlasData, 
 			messages.accept(Component.translatable("gui.antique_atlas.export.empty"));
 			return;
 		}
+		long started = AtlasDebug.on ? Util.getMillis() : 0;
 		NativeImage image;
 		try {
 			image = new AtlasExporter(layout, data, dim, client.player).draw(markers);
@@ -60,6 +62,7 @@ public record AtlasExporter(ExportLayout layout, WorldAtlasData worldAtlasData, 
 				if (!directory.isDirectory() && !directory.mkdirs()) throw new IllegalStateException("can't create " + directory);
 				File file = uniqueFile(directory, name);
 				image.writeToFile(file);
+				if (AtlasDebug.on) AtlasDebug.log("Exported {} to {}: {}x{} pixels, {} chunks per tile, {} ms", dim.location(), file, layout.width(), layout.height(), layout.tileChunks(), Util.getMillis() - started);
 				Component link = Component.literal("screenshots/atlas/" + file.getName()).withStyle(ChatFormatting.UNDERLINE)
 					.withStyle(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, file.getAbsolutePath())));
 				client.execute(() -> messages.accept(Component.translatable("gui.antique_atlas.export.success", link, layout.width(), layout.height(), layout.tileChunks())));

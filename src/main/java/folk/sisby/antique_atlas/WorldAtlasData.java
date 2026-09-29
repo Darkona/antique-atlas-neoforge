@@ -76,6 +76,12 @@ public class WorldAtlasData {
 			if (summary.structures() != null) data.onStructuresAdded(summary, summary.structures().keySet(exploration));
 			if (summary.landmarks() != null) data.onLandmarksAdded(summary, summary.landmarks().keySet(exploration));
 		}
+		if (AtlasDebug.on) {
+			for (Map.Entry<ResourceKey<Level>, WorldAtlasData> entry : WORLDS.entrySet()) {
+				WorldAtlasData data = entry.getValue();
+				AtlasDebug.log("Rebuilt {}: {} chunks to tile, {} structure tiles, {} markers, scanner {}", entry.getKey().location(), data.terrainDeque.size(), data.structureTiles.size(), data.landmarkMarkers.values().stream().mapToInt(Map::size).sum() + data.structureMarkers.size(), data.settings.scanner());
+			}
+		}
 	}
 
 	public static boolean hasPendingWork() {
@@ -139,11 +145,14 @@ public class WorldAtlasData {
 			if (!terrainDequeHash.contains(pos)) {
 				terrainDequeHash.add(pos);
 				terrainDeque.add(pos);
+				AtlasDebug.count(AtlasDebug.Count.TERRAIN_QUEUED);
 			}
 		}
+		AtlasDebug.max(AtlasDebug.Count.TERRAIN_QUEUE_MAX, terrainDeque.size());
 	}
 
 	public void onStructuresAdded(WorldSummary summary, Multimap<ResourceKey<Structure>, ChunkPos> starts) {
+		AtlasDebug.count(AtlasDebug.Count.STRUCTURES_ADDED, starts.size());
 		starts.forEach((key, pos) -> StructureTileProviders.getInstance().resolve(structureTiles, debugStructures, debugStructurePredicates, structureMarkers, summary, key, pos, summary.structures().get(key, pos), summary.structures().getType(key), summary.structures().getTags(key)));
 		markersChanged();
 	}
@@ -172,11 +181,15 @@ public class WorldAtlasData {
 			if (tile != null) {
 				tileScope.extendTo(pos.x, pos.z);
 				biomeTiles.put(pos.toLong(), tile.left().getTexture(pos, tile.right()));
+				AtlasDebug.count(AtlasDebug.Count.TILES_SET);
 				debugBiomes.put(pos, tile.left());
 				debugBiomePredicates.put(pos, tile.right() == null ? null : tile.right().getName());
 			} else if (biomeTiles.remove(pos.toLong()) != null) { // the chunk no longer has terrain to draw
+				AtlasDebug.count(AtlasDebug.Count.TILES_REMOVED);
 				debugBiomes.remove(pos);
 				debugBiomePredicates.remove(pos);
+			} else {
+				AtlasDebug.count(AtlasDebug.Count.TILES_UNDRAWN);
 			}
 		}
 		if (!isFinished && terrainDeque.isEmpty()) {
@@ -257,11 +270,13 @@ public class WorldAtlasData {
 	}
 
 	public void onLandmarksAdded(WorldSummary summary, Multimap<UUID, ResourceLocation> landmarks) {
+		AtlasDebug.count(AtlasDebug.Count.MARKERS_ADDED, landmarks.size());
 		landmarks.forEach((type, pos) -> this.addLandmark(summary.landmarks().get(type, pos)));
 		if (Minecraft.getInstance().screen instanceof AtlasScreen as) as.markBookmarksDirty();
 	}
 
 	public void onLandmarksRemoved(WorldSummary summary, Multimap<UUID, ResourceLocation> landmarks) {
+		AtlasDebug.count(AtlasDebug.Count.MARKERS_REMOVED, landmarks.size());
 		landmarks.forEach((type, pos) -> {
 			if (landmarkMarkers.containsKey(type)) {
 				landmarkMarkers.get(type).remove(pos);

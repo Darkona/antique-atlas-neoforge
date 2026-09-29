@@ -1,5 +1,6 @@
 package folk.sisby.antique_atlas.reloader;
 
+import folk.sisby.antique_atlas.AtlasDebug;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
@@ -45,5 +46,6 @@ public class DimensionConfigs extends SimpleJsonResourceReloadListener {
 			.resultOrPartial(error -> AntiqueAtlas.LOGGER.error("[Antique Atlas] Error reading dimension settings {}: {}", id, error))
 			.ifPresent(dimension -> parsed.put(id, dimension)));
 		settings = Map.copyOf(parsed);
+		if (AtlasDebug.on) settings.forEach((id, dimension) -> AtlasDebug.log("Dimension settings {}: {}", id, dimension));
 	}
 }

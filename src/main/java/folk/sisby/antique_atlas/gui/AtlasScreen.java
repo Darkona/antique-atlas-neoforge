@@ -1,5 +1,6 @@
 package folk.sisby.antique_atlas.gui;
 
+import folk.sisby.antique_atlas.AtlasDebug;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -528,6 +529,7 @@ public class AtlasScreen extends Component implements AtlasRenderer {
 		super.tick();
 		if (bookmarksDirty) {
 			bookmarksDirty = false;
+			AtlasDebug.count(AtlasDebug.Count.BOOKMARK_REBUILDS);
 			int dimensionScroll = dimensionScrollBox.getScrollPos();
 			int markerScroll = markerScrollBox.getScrollPos();
 			updateBookmarkerList();

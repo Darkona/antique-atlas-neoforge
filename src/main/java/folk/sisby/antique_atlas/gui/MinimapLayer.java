@@ -1,5 +1,6 @@
 package folk.sisby.antique_atlas.gui;
 
+import folk.sisby.antique_atlas.AtlasDebug;
 import folk.sisby.antique_atlas.AntiqueAtlas;
 import folk.sisby.antique_atlas.AntiqueAtlasConfig;
 import folk.sisby.antique_atlas.MarkerTexture;
@@ -52,9 +53,16 @@ public final class MinimapLayer {
 		return carrying;
 	}
 
+	private static boolean debugShown;
+
 	public static void render(GuiGraphics graphics, DeltaTracker delta) {
 		Minecraft client = Minecraft.getInstance();
-		if (!visible(client)) return;
+		boolean shown = visible(client);
+		if (AtlasDebug.on && shown != debugShown) {
+			debugShown = shown;
+			AtlasDebug.log("Minimap {}", shown ? "shown" : "hidden");
+		}
+		if (!shown) return;
 		LocalPlayer player = client.player;
 		ResourceKey<Level> dim = client.level.dimension();
 		if (WorldAtlasData.isEmpty(dim)) return;

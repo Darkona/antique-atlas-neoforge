@@ -1,5 +1,6 @@
 package folk.sisby.antique_atlas.reloader;
 
+import folk.sisby.antique_atlas.AtlasDebug;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -64,8 +65,13 @@ public class MarkerTextures extends SimplePreparableReloadListener<Map<ResourceL
 		ResourceLocation id = minimumId(landmark.id());
 		if (id.getPath().equals("default") && landmark.contains(LandmarkComponentTypes.STACK)) { // no texture of its own
 			MarkerTexture texture = fromStack(landmark.get(LandmarkComponentTypes.STACK));
-			if (texture != null) return texture;
+			if (texture != null) {
+				if (AtlasDebug.on) AtlasDebug.log("Marker {} of {} drawn with the texture of its item {}: {}", landmark.id(), landmark.owner(), landmark.get(LandmarkComponentTypes.STACK).getItem(), texture.keyId());
+				AtlasDebug.count(AtlasDebug.Count.MARKERS_ITEM_TEXTURE);
+				return texture;
+			}
 		}
+		if (id.getPath().equals("default")) AtlasDebug.count(AtlasDebug.Count.MARKERS_DEFAULT_TEXTURE);
 		return getOrDefault(id);
 	}
 

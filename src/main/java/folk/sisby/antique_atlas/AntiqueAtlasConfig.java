@@ -91,6 +91,7 @@ public class AntiqueAtlasConfig {
 	public int minimapSize = 96;
 	public int minimapTileChunks = 1;
 	public boolean minimapMarkers = true;
+	public boolean debug = false;
 	public Dimensions dimensions = new Dimensions();
 
 	public static class Dimensions {
@@ -157,6 +158,7 @@ public class AntiqueAtlasConfig {
 	private static final ModConfigSpec.IntValue MINIMAP_SIZE;
 	private static final ModConfigSpec.IntValue MINIMAP_TILE_CHUNKS;
 	private static final ModConfigSpec.BooleanValue MINIMAP_MARKERS;
+	private static final ModConfigSpec.BooleanValue DEBUG;
 	private static final ModConfigSpec.ConfigValue<List<? extends String>> DIMENSION_SCALES;
 
 	static {
@@ -187,6 +189,7 @@ public class AntiqueAtlasConfig {
 		MINIMAP_SIZE = b.comment("The side of the minimap, in GUI pixels (one block per pixel at one chunk per tile)").defineInRange("minimapSize", d.minimapSize, 48, 256);
 		MINIMAP_TILE_CHUNKS = b.comment("Chunks per tile on the minimap: 1, 2 or 4 (3 counts as 2)").defineInRange("minimapTileChunks", d.minimapTileChunks, 1, 4);
 		MINIMAP_MARKERS = b.comment("Whether the minimap shows markers").define("minimapMarkers", d.minimapMarkers);
+		DEBUG = b.comment("Logs what Antique Atlas does to latest.log, prefixed [Antique Atlas/debug]: rebuilds, resource reloads, tiles, markers, exports, the minimap and the handheld zoom.", "Busy activity is summed up every 100 ticks. Also on with the JVM argument -Dantique_atlas.debug=true.").define("debug", d.debug);
 		b.push("dimensions");
 		DIMENSION_SCALES = b.comment("Cycle order and coordinate scales of each dimension, as \"dimension=scale\".", "If not 0, the relative position of the player will be shown.")
 			.defineListAllowEmpty("scales", toEntries(d.dimensions.scales), () -> "", AntiqueAtlasConfig::isEntry);
@@ -214,6 +217,8 @@ public class AntiqueAtlasConfig {
 		minimapSize = MINIMAP_SIZE.get();
 		minimapTileChunks = Integer.highestOneBit(MINIMAP_TILE_CHUNKS.get());
 		minimapMarkers = MINIMAP_MARKERS.get();
+		debug = DEBUG.get();
+		AtlasDebug.configure(debug);
 		dimensions.scales = fromEntries(DIMENSION_SCALES.get(), Integer::parseInt);
 		dimensions.invalidate();
 	}

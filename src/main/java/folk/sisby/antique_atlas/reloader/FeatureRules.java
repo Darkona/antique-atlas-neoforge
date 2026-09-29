@@ -1,5 +1,6 @@
 package folk.sisby.antique_atlas.reloader;
 
+import folk.sisby.antique_atlas.AtlasDebug;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
@@ -43,5 +44,6 @@ public class FeatureRules extends SimpleJsonResourceReloadListener {
 			.resultOrPartial(error -> AntiqueAtlas.LOGGER.error("[Antique Atlas] Error reading feature rule {}: {}", id, error))
 			.ifPresent(rule -> parsed.put(id, rule)));
 		rules = FeatureRuleSet.compile(TerrainTiling.CUSTOM_TILES, parsed, error -> AntiqueAtlas.LOGGER.error("[Antique Atlas] {}", error));
+		if (AtlasDebug.on) AtlasDebug.log("Feature rules: {} files read, {} feature tiles ({})", parsed.size(), rules.customTileCount(), parsed.keySet());
 	}
 }

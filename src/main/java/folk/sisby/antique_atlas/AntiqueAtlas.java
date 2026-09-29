@@ -212,6 +212,7 @@ public class AntiqueAtlas {
 			if (e.getLevel().isClientSide() && e.getEntity().isShiftKeyDown() && isHandheldAtlas(e.getItemStack())) {
 				// Sneak + use zooms the handheld atlas out: 1, 2, 4 chunks per tile
 				handheldZoom = nextHandheldZoom(handheldZoom);
+				if (AtlasDebug.on) AtlasDebug.log("Handheld atlas zoom: {} chunks per tile", handheldZoom);
 				e.getEntity().displayClientMessage(Component.translatable("gui.antique_atlas.handheldZoom", handheldZoom), true);
 				e.setCancellationResult(InteractionResult.SUCCESS);
 				e.setCanceled(true);
@@ -244,6 +245,9 @@ public class AntiqueAtlas {
 		});
 		// Fix: after a share group change, tiles the new group hasn't explored stayed on the map.
 		SurveyorClientEvents.Register.explorationReset(id("world_data"), () -> onClientThread(WorldAtlasData::rebuildAll));
+		SurveyorClientEvents.Register.explorationReset(id("debug"), () -> {
+			if (AtlasDebug.on) AtlasDebug.log("Share group changed: rebuilding the atlas from the new exploration");
+		});
 		NeoForge.EVENT_BUS.addListener(LevelTickEvent.Post.class, e -> {
 			if (e.getLevel() instanceof ClientLevel && WorldAtlasData.hasPendingWork()) SurveyorClient.getSummaries(Minecraft.getInstance().getConnection()).values().forEach(s -> WorldAtlasData.getOrCreate(s.dimension()).tick(s));
 		});
@@ -254,8 +258,10 @@ public class AntiqueAtlas {
 		NeoForge.EVENT_BUS.addListener(ClientPlayerNetworkEvent.LoggingOut.class, e -> resetSession());
 		NeoForge.EVENT_BUS.addListener(ClientTickEvent.Post.class, e -> {
 			clientTicks++;
+			if (AtlasDebug.on) AtlasDebug.tick(clientTicks);
 			if (rebuildPending) {
 				rebuildPending = false;
+				if (AtlasDebug.on) AtlasDebug.log("Resources reloaded: rebuilding the atlas");
 				WorldAtlasData.rebuildAll();
 			}
 		});
