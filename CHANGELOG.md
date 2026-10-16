@@ -4,7 +4,7 @@ This file lists the changes of this NeoForge fork. It follows [Keep a Changelog]
 
 Links such as `antique-atlas#358` go to the [original project's issues](https://github.com/sisby-folk/antique-atlas/issues). The bugs they describe also existed in this fork until the date of the entry. "Closes" means that this fork fully handles that bug or feature request. "Partly addresses" means that it handles only the part that the entry describes. "Answers" means that the issue is a question, and the wiki answers it.
 
-## [3.1.2+1.21-neoforge] - 2026-09-29
+## [2.0.0+1.21-neoforge] - 2026-09-29
 
 ### Added
 - 2026-09-29: New option `debug` (or the JVM argument `-Dantique_atlas.debug=true`): the atlas logs what it does to `latest.log` with the prefix `[Antique Atlas/debug]`, for bug reports and test runs. Rare events get one line each (rebuilds and their cause, resource-pack rules, item marker textures, exports, minimap, handheld zoom). Busy activity (tiles, markers) is added up every 100 ticks. When the option is off, it costs nothing.
