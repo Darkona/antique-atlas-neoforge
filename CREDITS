@@ -45,6 +45,10 @@ S         |     stuck_sword_accent.png
 S         |     sword_accent.png
 H         |     tower.png
 HS        |     tower_accent.png
+H         |     tomb.png
+S         |     tomb_accent.png
+H         |     nether_portal.png
+S         |     nether_portal_accent.png
 HS        |     bastion_remnant.png
 HS        |     desert_village.png
 H         |     end_city.png

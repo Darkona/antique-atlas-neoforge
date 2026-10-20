@@ -4,6 +4,11 @@ This file lists the changes of this NeoForge fork. It follows [Keep a Changelog]
 
 Links such as `antique-atlas#358` go to the [original project's issues](https://github.com/sisby-folk/antique-atlas/issues). The bugs they describe also existed in this fork until the date of the entry. "Closes" means that this fork fully handles that bug or feature request. "Partly addresses" means that it handles only the part that the entry describes. "Answers" means that the issue is a question, and the wiki answers it.
 
+## [Unreleased]
+
+### Added
+- 2026-10-18: Two marker icons for your own markers: `tomb` and `nether_portal`, from the original Antique Atlas by Hunternif (CC BY-NC-SA), recolored with an accent layer like the other icons.
+
 ## [2.0.0+1.21-neoforge] - 2026-09-29
 
 ### Added
