@@ -13,7 +13,7 @@ public record TileTexture(ResourceLocation id, boolean innerBorder, Set<TileText
 
 	public static final TileTexture MISSING = empty(AntiqueAtlas.id("missing"), false);
 	public static final TileTexture TEST = empty(AntiqueAtlas.id("test"), false);
-	@Deprecated
+	@Deprecated(forRemoval = true)
 	public static final TileTexture DEFAULT = MISSING;
 
 	public static TileTexture fallback() {

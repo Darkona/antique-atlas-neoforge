@@ -157,7 +157,7 @@ public interface AtlasRenderer {
 		return mapY + bookY + MAP_BORDER_HEIGHT;
 	}
 
-	@Deprecated
+	@Deprecated(forRemoval = true)
 	default void renderMarker(PoseStack matrices, MultiBufferSource vertexConsumers, Landmark landmark, MarkerTexture texture, float z, int light, BiFunction<Double, Double, Float> alphaGetter, boolean pinned, boolean hovering, float markerScale) {
 		drawMarker(matrices, vertexConsumers, landmark, texture, z, light, alphaGetter::apply, pinned, hovering, markerScale);
 	}

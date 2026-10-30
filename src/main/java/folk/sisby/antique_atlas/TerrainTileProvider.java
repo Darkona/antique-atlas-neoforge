@@ -13,7 +13,7 @@ import net.minecraft.world.level.ChunkPos;
 public record TerrainTileProvider(ResourceLocation id, Map<TileElevation, List<TileTexture>> textures) {
 	private static final TerrainTileProvider MISSING = new TerrainTileProvider(AntiqueAtlas.id("default"), List.of(TileTexture.MISSING));
 	private static final TerrainTileProvider TEST = new TerrainTileProvider(AntiqueAtlas.id("default"), List.of(TileTexture.TEST));
-	@Deprecated
+	@Deprecated(forRemoval = true)
 	public static TerrainTileProvider DEFAULT = MISSING;
 
 	public static TerrainTileProvider fallback() {
