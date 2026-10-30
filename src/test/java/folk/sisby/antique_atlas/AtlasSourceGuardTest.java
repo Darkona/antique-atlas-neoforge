@@ -64,6 +64,23 @@ class AtlasSourceGuardTest {
 	}
 
 	@Test
+	@DisplayName("Every mixin in the mixin config is a class in the mixin package, named after its Mojmap target")
+	void mixinConfigMatchesClasses() throws IOException {
+		String config = Files.readString(Path.of("src/main/resources/antique_atlas.mixins.json"));
+		Matcher entry = Pattern.compile("\"(\\w+Mixin)\"").matcher(config);
+		int count = 0;
+		while (entry.find()) {
+			count++;
+			String name = entry.group(1);
+			String src = read("mixin/" + name + ".java");
+			assertTrue(src.contains("@Mixin(" + name.substring(0, name.length() - "Mixin".length()) + ".class)"), name + " does not target the class it is named after");
+		}
+		try (var files = Files.list(SRC.resolve("mixin"))) {
+			assertEquals(files.count(), count, "a mixin class is missing from antique_atlas.mixins.json, or an entry is not named <Target>Mixin");
+		}
+	}
+
+	@Test
 	@DisplayName("The optional-mod probe is bound once")
 	void irisProbeBoundOnce() throws IOException {
 		String src = read("compat/iris/IrisShaders.java");

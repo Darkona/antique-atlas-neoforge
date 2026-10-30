@@ -4,8 +4,8 @@
 	"package": "folk.sisby.antique_atlas.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
-		"MixinHeldItemRenderer",
-		"MixinItemModels"
+		"ItemInHandRendererMixin",
+		"ItemModelShaperMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
