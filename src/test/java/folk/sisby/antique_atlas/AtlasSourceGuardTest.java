@@ -20,14 +20,23 @@ class AtlasSourceGuardTest {
 	}
 
 	@Test
-	@DisplayName("Every Surveyor client listener hands off to the client thread")
+	@DisplayName("Every Surveyor client listener runs directly on the client thread and copies and hands off only from another thread")
 	void surveyorListenersHandOff() throws IOException {
 		String src = read("AntiqueAtlas.java");
-		Matcher registration = Pattern.compile("SurveyorClientEvents\\.Register\\.\\w+\\(.*?\\n\\t\\t}\\);", Pattern.DOTALL).matcher(src);
+		Matcher registration = Pattern.compile("SurveyorClientEvents\\.Register\\.\\w+\\(id\\(\"world_data\"\\).*?\\n\\t\\t}\\);|SurveyorClientEvents\\.Register\\.\\w+\\(id\\(\"world_data\"\\)[^\\n]*\\);", Pattern.DOTALL).matcher(src);
 		int count = 0;
 		while (registration.find()) {
 			count++;
-			assertTrue(registration.group().contains("onClientThread("), "listener touches atlas state off the client thread:\n" + registration.group());
+			String listener = registration.group();
+			if (listener.contains("explorationReset")) {
+				assertTrue(listener.contains("onClientThread("), "listener touches atlas state off the client thread:\n" + listener);
+				continue;
+			}
+			int direct = listener.indexOf("if (isClientThread()) {");
+			int handOff = listener.indexOf("Minecraft.getInstance().execute(");
+			int copy = listener.indexOf("copyOf(") >= 0 ? listener.indexOf("copyOf(") : listener.indexOf(".clone()");
+			assertTrue(direct >= 0 && handOff > direct, "listener does not run directly on the client thread or hand off from another thread:\n" + listener);
+			assertTrue(copy > direct && copy < handOff, "listener copies its arguments outside the off-thread branch:\n" + listener);
 		}
 		assertEquals(5, count, "expected the five Surveyor client listeners");
 	}

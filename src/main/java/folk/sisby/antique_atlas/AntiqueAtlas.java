@@ -225,23 +225,38 @@ public class AntiqueAtlas {
 			ItemProperties.register(Items.BOOK, AntiqueAtlas.id("atlas"), ((stack, world, entity, seed) -> isHandheldAtlas(stack) ? 1.0F : 0.0F))
 		));
 
-		// Fix: Surveyor may call these from the integrated server thread; hand off to the client thread.
 		SurveyorClientEvents.Register.terrainUpdated(id("world_data"), (s, k) -> {
+			if (isClientThread()) {
+				WorldAtlasData.getOrCreate(s.dimension()).onTerrainUpdated(s, k);
+				return;
+			}
 			Map<RegionPos, BitSet> chunks = new HashMap<>(k.size());
 			k.forEach((region, bits) -> chunks.put(region, (BitSet) bits.clone()));
-			onClientThread(() -> WorldAtlasData.getOrCreate(s.dimension()).onTerrainUpdated(s, chunks));
+			Minecraft.getInstance().execute(() -> WorldAtlasData.getOrCreate(s.dimension()).onTerrainUpdated(s, chunks));
 		});
 		SurveyorClientEvents.Register.structuresAdded(id("world_data"), (s, k) -> {
+			if (isClientThread()) {
+				WorldAtlasData.getOrCreate(s.dimension()).onStructuresAdded(s, k);
+				return;
+			}
 			Multimap<ResourceKey<Structure>, ChunkPos> starts = ImmutableMultimap.copyOf(k);
-			onClientThread(() -> WorldAtlasData.getOrCreate(s.dimension()).onStructuresAdded(s, starts));
+			Minecraft.getInstance().execute(() -> WorldAtlasData.getOrCreate(s.dimension()).onStructuresAdded(s, starts));
 		});
 		SurveyorClientEvents.Register.landmarksAdded(id("world_data"), (s, k) -> {
+			if (isClientThread()) {
+				WorldAtlasData.getOrCreate(s.dimension()).onLandmarksAdded(s, k);
+				return;
+			}
 			Multimap<UUID, ResourceLocation> landmarks = ImmutableMultimap.copyOf(k);
-			onClientThread(() -> WorldAtlasData.getOrCreate(s.dimension()).onLandmarksAdded(s, landmarks));
+			Minecraft.getInstance().execute(() -> WorldAtlasData.getOrCreate(s.dimension()).onLandmarksAdded(s, landmarks));
 		});
 		SurveyorClientEvents.Register.landmarksRemoved(id("world_data"), (s, k) -> {
+			if (isClientThread()) {
+				WorldAtlasData.getOrCreate(s.dimension()).onLandmarksRemoved(s, k);
+				return;
+			}
 			Multimap<UUID, ResourceLocation> landmarks = ImmutableMultimap.copyOf(k);
-			onClientThread(() -> WorldAtlasData.getOrCreate(s.dimension()).onLandmarksRemoved(s, landmarks));
+			Minecraft.getInstance().execute(() -> WorldAtlasData.getOrCreate(s.dimension()).onLandmarksRemoved(s, landmarks));
 		});
 		// Fix: after a share group change, tiles the new group hasn't explored stayed on the map.
 		SurveyorClientEvents.Register.explorationReset(id("world_data"), () -> onClientThread(WorldAtlasData::rebuildAll));
@@ -271,12 +286,15 @@ public class AntiqueAtlas {
 		WorldSummary.enableLandmarks();
 	}
 
+	private static boolean isClientThread() {
+		return Minecraft.getInstance().isSameThread();
+	}
+
 	public static void onClientThread(Runnable task) {
-		Minecraft client = Minecraft.getInstance();
-		if (client.isSameThread()) {
+		if (isClientThread()) {
 			task.run();
 		} else {
-			client.execute(task);
+			Minecraft.getInstance().execute(task);
 		}
 	}
 
