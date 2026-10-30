@@ -1,5 +1,6 @@
 package folk.sisby.antique_atlas.reloader;
 
+import com.google.gson.JsonParser;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TileTextureMetaTest {
@@ -20,6 +22,18 @@ class TileTextureMetaTest {
 
 	private static TileTextures.TileTextureMeta meta(ResourceLocation parent, Set<ResourceLocation> tags, Set<ExtraCodecs.TagOrElementLocation> tilesToThis) {
 		return new TileTextures.TileTextureMeta(parent, null, new HashSet<>(tags), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(tilesToThis), new HashSet<>(), new HashSet<>());
+	}
+
+	@Test
+	@DisplayName("Texture .mcmeta sections keep their names, parse, and fail loudly when malformed")
+	void metadataSections() {
+		assertEquals("antique_atlas:tiling", TileTextures.TileTextureMeta.METADATA.getMetadataSectionName());
+		assertEquals("antique_atlas:marker", MarkerTextures.MarkerTextureMeta.METADATA.getMetadataSectionName());
+		TileTextures.TileTextureMeta meta = TileTextures.TileTextureMeta.METADATA.fromJson(JsonParser.parseString("{\"tags\": [\"test:a\"], \"borderType\": \"inner\"}").getAsJsonObject());
+		assertEquals(Set.of(id("a")), meta.tags());
+		assertEquals(TileTextures.TileTextureMeta.BorderType.INNER, meta.borderType().orElseThrow());
+		assertThrows(RuntimeException.class, () -> TileTextures.TileTextureMeta.METADATA.fromJson(JsonParser.parseString("{\"borderType\": \"sideways\"}").getAsJsonObject()));
+		assertThrows(RuntimeException.class, () -> MarkerTextures.MarkerTextureMeta.METADATA.fromJson(JsonParser.parseString("{\"textureWidth\": \"wide\"}").getAsJsonObject()));
 	}
 
 	@Test

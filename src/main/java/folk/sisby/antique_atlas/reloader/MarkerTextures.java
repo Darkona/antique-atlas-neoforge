@@ -6,13 +6,13 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import folk.sisby.antique_atlas.AntiqueAtlas;
 import folk.sisby.antique_atlas.MarkerTexture;
-import folk.sisby.antique_atlas.util.CodecUtil;
 import folk.sisby.surveyor.landmark.Landmark;
 import folk.sisby.surveyor.landmark.component.LandmarkComponentTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
+import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceMetadata;
@@ -166,7 +166,7 @@ public class MarkerTextures extends SimplePreparableReloadListener<Map<ResourceL
 			Codec.INT.optionalFieldOf("farClip").forGetter(MarkerTextureMeta::farClip)
 		).apply(instance, MarkerTextureMeta::new));
 
-		public static final MetadataSectionSerializer<MarkerTextureMeta> METADATA = new CodecUtil.CodecResourceMetadataSerializer<>(CODEC, AntiqueAtlas.id("marker"));
+		public static final MetadataSectionSerializer<MarkerTextureMeta> METADATA = MetadataSectionType.fromCodec(AntiqueAtlas.id("marker").toString(), CODEC);
 
 		public MarkerTexture build(ResourceLocation id, boolean accent) {
 			int textureWidth = this.textureWidth.orElse(32);

@@ -14,7 +14,6 @@ import folk.sisby.antique_atlas.gui.core.Component;
 import folk.sisby.antique_atlas.gui.core.CursorComponent;
 import folk.sisby.antique_atlas.gui.core.ScreenState;
 import folk.sisby.antique_atlas.gui.core.ScrollBoxComponent;
-import folk.sisby.antique_atlas.util.CodecUtil;
 import folk.sisby.surveyor.PlayerSummary;
 import folk.sisby.surveyor.client.SurveyorClient;
 import folk.sisby.surveyor.landmark.Landmark;
@@ -43,6 +42,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ColumnPos;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
+import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Player;
@@ -203,7 +203,7 @@ public class AtlasScreen extends Component implements AtlasRenderer {
 		int dimsOnScreen = (mapWidth - 20) / ((BookmarkButton.HEIGHT + BOOKMARK_SPACING) - BOOKMARK_SPACING);
 		dimensionScrollBox.getViewport().setSize(dimsOnScreen * (BookmarkButton.HEIGHT + BOOKMARK_SPACING) - BOOKMARK_SPACING, BookmarkButton.WIDTH);
 
-		markerModal.addMarkerListener(markerCursor);
+		markerModal.addMarkerListener(markerCursor::onSelectMarkerType);
 
 		eraser.setTexture(ERASER, 12, 14, 2, 11);
 
@@ -249,7 +249,7 @@ public class AtlasScreen extends Component implements AtlasRenderer {
 		updateBookmarkerList();
 	}
 
-	public static final MetadataSectionSerializer<DimensionTextureMeta> METADATA = new CodecUtil.CodecResourceMetadataSerializer<>(DimensionTextureMeta.CODEC, AntiqueAtlas.id("dimension"));
+	public static final MetadataSectionSerializer<DimensionTextureMeta> METADATA = MetadataSectionType.fromCodec(AntiqueAtlas.id("dimension").toString(), DimensionTextureMeta.CODEC);
 
 	public record DimensionTextureMeta(int color, String name) {
 		public static final Codec<DimensionTextureMeta> CODEC = RecordCodecBuilder.create(instance -> instance.group(

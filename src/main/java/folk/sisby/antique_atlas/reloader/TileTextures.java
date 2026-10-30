@@ -8,6 +8,7 @@ import folk.sisby.antique_atlas.TileTexture;
 import folk.sisby.antique_atlas.util.CodecUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
+import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceMetadata;
@@ -144,7 +145,7 @@ public class TileTextures extends SimplePreparableReloadListener<Map<ResourceLoc
 			OUTER, INNER
 		}
 
-		public static final MetadataSectionSerializer<TileTextureMeta> METADATA = new CodecUtil.CodecResourceMetadataSerializer<>(CODEC, AntiqueAtlas.id("tiling"));
+		public static final MetadataSectionSerializer<TileTextureMeta> METADATA = MetadataSectionType.fromCodec(AntiqueAtlas.id("tiling").toString(), CODEC);
 		protected final ResourceLocation parent;
 		protected BorderType borderType;
 		protected final Set<ResourceLocation> tags;

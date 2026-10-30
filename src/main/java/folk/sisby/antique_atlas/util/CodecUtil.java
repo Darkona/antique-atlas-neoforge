@@ -28,6 +28,7 @@ public class CodecUtil {
 		}, value -> DataResult.success(value.name()));
 	}
 
+	@Deprecated(forRemoval = true)
 	public record CodecResourceMetadataSerializer<T>(Codec<T> codec, ResourceLocation id) implements MetadataSectionSerializer<T> {
 		@Override
 		public @NotNull String getMetadataSectionName() {
