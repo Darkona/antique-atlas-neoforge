@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AtlasFeatureRulesTest {
 	private static final Path DEFAULTS = Path.of("src/main/resources/assets/antique_atlas/atlas/features");
-	private static final ResourceLocation SWAMP_TAG = ResourceLocation.fromNamespaceAndPath("c", "swamp");
+	private static final ResourceLocation SWAMP_TAG = ResourceLocation.fromNamespaceAndPath("c", "is_swamp");
 	private static final ResourceLocation PLAINS = ResourceLocation.withDefaultNamespace("plains");
 	private static final ResourceLocation SWAMP = ResourceLocation.withDefaultNamespace("swamp");
 
