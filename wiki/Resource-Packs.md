@@ -154,7 +154,7 @@ Feature rules choose the tile for special terrain inside a chunk: water, swamp w
 	"tile": "antique_atlas:feature/swamp_water",
 	"priority": 4,
 	"water": true,
-	"biomes": ["#c:swamp"]
+	"biomes": ["#c:is_swamp"]
 }
 ```
 
@@ -168,7 +168,7 @@ Feature rules choose the tile for special terrain inside a chunk: water, swamp w
 
 A rule that is not `water` needs `blocks` or `biomes`. If more than one rule matches a column, the rule with the highest `priority` wins. On a tie, a rule with `biomes` wins, then a rule with `blocks`, then the file id. The atlas uses at most 63 rules.
 
-The built-in rules are `water` (4), `swamp_water` (4, `#c:swamp`), `ice` (3, `minecraft:ice`) and `lava` (6, `minecraft:lava`). In the nether they apply to the lava sea below Y 50. There, a column that matches no rule is lava shore. Ravines and empty chunks are not rules.
+The built-in rules are `water` (4), `swamp_water` (4, `#c:is_swamp`), `ice` (3, `minecraft:ice`) and `lava` (6, `minecraft:lava`). In the nether they apply to the lava sea below Y 50. There, a column that matches no rule is lava shore. Ravines and empty chunks are not rules.
 
 To change a built-in rule, put a file with the same path in your pack. To turn it off, use `{}`. To add a rule, for example for tracks (a future use, antique-atlas#344):
 
