@@ -6,6 +6,8 @@ Links such as `antique-atlas#358` go to the [original project's issues](https://
 
 ## [Unreleased]
 
+## [2.1.1+1.21-neoforge] - 2026-10-30
+
 ### Removed
 - 2026-10-30: For addon authors: `util.ConventionalBiomeTagsV1` and `util.ForgeTags`, deprecated in 2.1.0, are removed. Their ids (Fabric's first conventional tags and the old `forge:` tags) do not exist on NeoForge 1.21.1, so no biome was ever in them. Use NeoForge's `Tags.Biomes`. `util.ConventionalBiomeTagsV2` stays, deprecated: its ids are NeoForge's.
 
