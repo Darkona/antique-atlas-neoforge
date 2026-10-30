@@ -66,7 +66,7 @@ tasks.named('compileTestJava', JavaCompile) {
 
 tasks.named('test', Test) {
 	useJUnitPlatform()
-	classpath += sourceSets.main.compileClasspath
+	classpath += sourceSets.main.runtimeClasspath
 	workingDir = project.projectDir
 }
 

@@ -12,18 +12,17 @@ import folk.sisby.antique_atlas.AntiqueAtlasConfig;
 import folk.sisby.antique_atlas.TerrainTileProvider;
 import folk.sisby.antique_atlas.TileElevation;
 import folk.sisby.antique_atlas.TileTexture;
-import folk.sisby.antique_atlas.util.ForgeTags;
-import folk.sisby.antique_atlas.util.ConventionalBiomeTagsV1;
-import folk.sisby.antique_atlas.util.ConventionalBiomeTagsV2;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.tags.BiomeTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
+import net.neoforged.neoforge.common.Tags;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -31,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
 public class BiomeTileProviders extends SimpleJsonResourceReloadListener {
 	public static final BiomeTileProviders INSTANCE = new BiomeTileProviders();
@@ -90,79 +90,77 @@ public class BiomeTileProviders extends SimpleJsonResourceReloadListener {
 	}
 
 	public static ResourceLocation getFallbackBiome(Holder<Biome> biome) {
-		if (biome.is(ConventionalBiomeTagsV2.IS_VOID) || biome.is(ConventionalBiomeTagsV1.VOID) || biome.is(ForgeTags.Biomes.IS_VOID)) {
+		return getFallbackBiome(biome::is);
+	}
+
+	public static ResourceLocation getFallbackBiome(Predicate<TagKey<Biome>> biome) {
+		if (biome.test(Tags.Biomes.IS_VOID)) {
 			return Biomes.THE_VOID.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_END) || biome.is(BiomeTags.IS_END) || biome.is(ConventionalBiomeTagsV1.IN_THE_END) || biome.is(ConventionalBiomeTagsV1.END_ISLANDS)) {
-			if (biome.is(ConventionalBiomeTagsV2.IS_VEGETATION_SPARSE) || biome.is(ConventionalBiomeTagsV2.IS_VEGETATION_DENSE) || biome.is(ConventionalBiomeTagsV1.VEGETATION_DENSE) || biome.is(ConventionalBiomeTagsV1.VEGETATION_SPARSE) || biome.is(ForgeTags.Biomes.IS_LUSH)) return Biomes.END_HIGHLANDS.location();
+		} else if (biome.test(Tags.Biomes.IS_END) || biome.test(BiomeTags.IS_END)) {
+			if (biome.test(Tags.Biomes.IS_SPARSE_VEGETATION) || biome.test(Tags.Biomes.IS_DENSE_VEGETATION)) return Biomes.END_HIGHLANDS.location();
 			return Biomes.END_BARRENS.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_NETHER_FOREST) || biome.is(ConventionalBiomeTagsV1.NETHER_FORESTS)) {
+		} else if (biome.test(Tags.Biomes.IS_NETHER_FOREST)) {
 			return Biomes.WARPED_FOREST.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_NETHER) || biome.is(BiomeTags.IS_NETHER) || biome.is(ConventionalBiomeTagsV1.IN_NETHER)) {
+		} else if (biome.test(Tags.Biomes.IS_NETHER) || biome.test(BiomeTags.IS_NETHER)) {
 			return Biomes.SOUL_SAND_VALLEY.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_SWAMP) || biome.is(ConventionalBiomeTagsV1.SWAMP) || biome.is(ForgeTags.Biomes.IS_SWAMP)) {
+		} else if (biome.test(Tags.Biomes.IS_SWAMP)) {
 			return Biomes.SWAMP.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_OCEAN) || biome.is(ConventionalBiomeTagsV2.IS_RIVER) || biome.is(BiomeTags.IS_OCEAN) || biome.is(BiomeTags.IS_DEEP_OCEAN) || biome.is(ConventionalBiomeTagsV1.DEEP_OCEAN) || biome.is(ConventionalBiomeTagsV1.OCEAN) || biome.is(ConventionalBiomeTagsV1.SHALLOW_OCEAN) || biome.is(BiomeTags.IS_RIVER) || biome.is(ConventionalBiomeTagsV1.RIVER) || biome.is(ConventionalBiomeTagsV1.AQUATIC) || biome.is(ConventionalBiomeTagsV1.AQUATIC_ICY) || biome.is(ForgeTags.Biomes.IS_WATER)) {
-			if (biome.is(ConventionalBiomeTagsV2.IS_AQUATIC_ICY) || biome.is(ConventionalBiomeTagsV2.IS_ICY) || biome.is(ConventionalBiomeTagsV1.ICY) || biome.is(ConventionalBiomeTagsV1.AQUATIC_ICY)) return Biomes.FROZEN_RIVER.location();
+		} else if (biome.test(Tags.Biomes.IS_OCEAN) || biome.test(Tags.Biomes.IS_RIVER) || biome.test(BiomeTags.IS_OCEAN) || biome.test(BiomeTags.IS_DEEP_OCEAN) || biome.test(BiomeTags.IS_RIVER)) {
+			if (biome.test(Tags.Biomes.IS_AQUATIC_ICY) || biome.test(Tags.Biomes.IS_ICY)) return Biomes.FROZEN_RIVER.location();
 			return Biomes.RIVER.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_STONY_SHORES) || biome.is(ConventionalBiomeTagsV1.STONY_SHORES)) {
+		} else if (biome.test(Tags.Biomes.IS_STONY_SHORES)) {
 			return Biomes.STONY_SHORE.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_BEACH) || biome.is(BiomeTags.IS_BEACH) || biome.is(ConventionalBiomeTagsV1.BEACH)) {
+		} else if (biome.test(Tags.Biomes.IS_BEACH) || biome.test(BiomeTags.IS_BEACH)) {
 			return Biomes.BEACH.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_JUNGLE_TREE) || biome.is(ConventionalBiomeTagsV2.IS_JUNGLE) || biome.is(BiomeTags.IS_JUNGLE) || biome.is(ConventionalBiomeTagsV1.JUNGLE) || biome.is(ConventionalBiomeTagsV1.TREE_JUNGLE)) {
+		} else if (biome.test(Tags.Biomes.IS_JUNGLE_TREE) || biome.test(Tags.Biomes.IS_JUNGLE) || biome.test(BiomeTags.IS_JUNGLE)) {
 			return Biomes.JUNGLE.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_FLOWER_FOREST) || biome.is(ConventionalBiomeTagsV2.IS_FLORAL) || biome.is(ConventionalBiomeTagsV1.FLOWER_FORESTS) || biome.is(ConventionalBiomeTagsV1.FLORAL)) {
+		} else if (biome.test(Tags.Biomes.IS_FLOWER_FOREST) || biome.test(Tags.Biomes.IS_FLORAL)) {
 			return Biomes.FLOWER_FOREST.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_SAVANNA_TREE) || biome.is(ConventionalBiomeTagsV2.IS_SAVANNA) || biome.is(BiomeTags.IS_SAVANNA) || biome.is(ConventionalBiomeTagsV1.SAVANNA) || biome.is(ConventionalBiomeTagsV1.TREE_SAVANNA)) {
+		} else if (biome.test(Tags.Biomes.IS_SAVANNA_TREE) || biome.test(Tags.Biomes.IS_SAVANNA) || biome.test(BiomeTags.IS_SAVANNA)) {
 			return Biomes.SAVANNA.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_BADLANDS) || biome.is(BiomeTags.IS_BADLANDS) || biome.is((ConventionalBiomeTagsV1.BADLANDS)) || biome.is((ConventionalBiomeTagsV1.MESA))) {
+		} else if (biome.test(Tags.Biomes.IS_BADLANDS) || biome.test(BiomeTags.IS_BADLANDS)) {
 			return Biomes.BADLANDS.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_CONIFEROUS_TREE) || biome.is(ConventionalBiomeTagsV2.IS_TAIGA) || biome.is(ConventionalBiomeTagsV1.TREE_CONIFEROUS) || biome.is(ForgeTags.Biomes.IS_CONIFEROUS) || biome.is(BiomeTags.IS_TAIGA) || biome.is(ConventionalBiomeTagsV1.TAIGA)) {
-			if (biome.is(ConventionalBiomeTagsV2.IS_SNOWY) || biome.is(ConventionalBiomeTagsV2.IS_ICY) || biome.is(ConventionalBiomeTagsV1.ICY) || biome.is(ConventionalBiomeTagsV1.SNOWY)) return Biomes.SNOWY_TAIGA.location();
+		} else if (biome.test(Tags.Biomes.IS_CONIFEROUS_TREE) || biome.test(Tags.Biomes.IS_TAIGA) || biome.test(BiomeTags.IS_TAIGA)) {
+			if (biome.test(Tags.Biomes.IS_SNOWY) || biome.test(Tags.Biomes.IS_ICY)) return Biomes.SNOWY_TAIGA.location();
 			return Biomes.TAIGA.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_OLD_GROWTH)) {
+		} else if (biome.test(Tags.Biomes.IS_OLD_GROWTH)) {
 			return Biomes.BIRCH_FOREST.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_BIRCH_FOREST) || biome.is(ConventionalBiomeTagsV2.IS_DECIDUOUS_TREE) || biome.is(ConventionalBiomeTagsV1.BIRCH_FOREST) || biome.is(ConventionalBiomeTagsV1.TREE_DECIDUOUS)) {
+		} else if (biome.test(Tags.Biomes.IS_BIRCH_FOREST) || biome.test(Tags.Biomes.IS_DECIDUOUS_TREE)) {
 			return Biomes.BIRCH_FOREST.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_FOREST) || biome.is(BiomeTags.IS_FOREST) || biome.is(ConventionalBiomeTagsV1.FOREST)) {
+		} else if (biome.test(Tags.Biomes.IS_FOREST) || biome.test(BiomeTags.IS_FOREST)) {
 			return Biomes.FOREST.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_SNOWY_PLAINS) || biome.is(ConventionalBiomeTagsV2.IS_PLAINS) || biome.is(ConventionalBiomeTagsV1.PLAINS) || biome.is(ConventionalBiomeTagsV1.SNOWY_PLAINS) || biome.is(ForgeTags.Biomes.IS_PLAINS) || biome.is(ConventionalBiomeTagsV1.SNOWY) || biome.is(ForgeTags.Biomes.IS_SNOWY)) {
-			if (biome.is(ConventionalBiomeTagsV2.IS_ICY) || biome.is(ConventionalBiomeTagsV2.IS_SNOWY_PLAINS) || biome.is(ConventionalBiomeTagsV2.IS_SNOWY) || biome.is(ConventionalBiomeTagsV1.SNOWY_PLAINS) || biome.is(ConventionalBiomeTagsV1.ICY) || biome.is(ConventionalBiomeTagsV1.SNOWY)) return Biomes.SNOWY_PLAINS.location();
+		} else if (biome.test(Tags.Biomes.IS_SNOWY_PLAINS) || biome.test(Tags.Biomes.IS_PLAINS)) {
+			if (biome.test(Tags.Biomes.IS_ICY) || biome.test(Tags.Biomes.IS_SNOWY_PLAINS) || biome.test(Tags.Biomes.IS_SNOWY)) return Biomes.SNOWY_PLAINS.location();
 			return Biomes.PLAINS.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_WASTELAND) || biome.is(ConventionalBiomeTagsV2.IS_DEAD) || biome.is(ConventionalBiomeTagsV2.IS_DESERT) || biome.is(ConventionalBiomeTagsV1.DESERT) || biome.is(ConventionalBiomeTagsV1.WASTELAND) || biome.is(ConventionalBiomeTagsV1.DEAD) || biome.is(ForgeTags.Biomes.IS_SANDY) || biome.is(ForgeTags.Biomes.IS_DESERT) || biome.is(ForgeTags.Biomes.IS_DEAD) || biome.is(ForgeTags.Biomes.IS_WASTELAND)) {
+		} else if (biome.test(Tags.Biomes.IS_WASTELAND) || biome.test(Tags.Biomes.IS_DEAD) || biome.test(Tags.Biomes.IS_DESERT)) {
 			return Biomes.DESERT.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_ICY) || biome.is(ConventionalBiomeTagsV1.ICY)) {
+		} else if (biome.test(Tags.Biomes.IS_ICY)) {
 			return Biomes.FROZEN_OCEAN.location();
-		} else if (biome.is(ForgeTags.Biomes.IS_PLATEAU)) {
-			return Biomes.MEADOW.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_WINDSWEPT) || biome.is(ConventionalBiomeTagsV1.EXTREME_HILLS) || biome.is(ConventionalBiomeTagsV1.WINDSWEPT)) {
+		} else if (biome.test(Tags.Biomes.IS_WINDSWEPT)) {
 			return Biomes.WINDSWEPT_HILLS.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_MOUNTAIN_PEAK) || biome.is(ConventionalBiomeTagsV1.MOUNTAIN_PEAK) || biome.is(ForgeTags.Biomes.IS_PEAK)) {
+		} else if (biome.test(Tags.Biomes.IS_MOUNTAIN_PEAK)) {
 			return Biomes.JAGGED_PEAKS.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_MOUNTAIN_SLOPE) || biome.is(ConventionalBiomeTagsV2.IS_MOUNTAIN) || biome.is(BiomeTags.IS_MOUNTAIN) || biome.is(ConventionalBiomeTagsV1.MOUNTAIN) || biome.is(ConventionalBiomeTagsV1.MOUNTAIN_SLOPE) || biome.is(ForgeTags.Biomes.IS_SLOPE) || biome.is(ForgeTags.Biomes.IS_MOUNTAIN)) {
+		} else if (biome.test(Tags.Biomes.IS_MOUNTAIN_SLOPE) || biome.test(Tags.Biomes.IS_MOUNTAIN) || biome.test(BiomeTags.IS_MOUNTAIN)) {
 			return Biomes.STONY_PEAKS.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_MUSHROOM) || biome.is(ConventionalBiomeTagsV1.MUSHROOM) || biome.is(ForgeTags.Biomes.IS_MUSHROOM)) {
+		} else if (biome.test(Tags.Biomes.IS_MUSHROOM)) {
 			return Biomes.MUSHROOM_FIELDS.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_HILL) || biome.is(BiomeTags.IS_HILL)) {
+		} else if (biome.test(Tags.Biomes.IS_HILL) || biome.test(BiomeTags.IS_HILL)) {
 			return Biomes.WINDSWEPT_GRAVELLY_HILLS.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_UNDERGROUND) || biome.is(ConventionalBiomeTagsV2.IS_CAVE) || biome.is(ConventionalBiomeTagsV1.CAVES) || biome.is(ConventionalBiomeTagsV1.UNDERGROUND) || biome.is(ForgeTags.Biomes.IS_UNDERGROUND) || biome.is(ForgeTags.Biomes.IS_CAVE)) {
+		} else if (biome.test(Tags.Biomes.IS_UNDERGROUND) || biome.test(Tags.Biomes.IS_CAVE)) {
 			return Biomes.DRIPSTONE_CAVES.location();
-		} else if (biome.is(ForgeTags.Biomes.IS_SPOOKY)) {
-			return Biomes.DARK_FOREST.location();
-		} else if (biome.is(ForgeTags.Biomes.IS_MAGICAL)) {
-			return Biomes.MUSHROOM_FIELDS.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_VEGETATION_DENSE) || biome.is(ConventionalBiomeTagsV1.VEGETATION_DENSE) || biome.is(ForgeTags.Biomes.IS_DENSE)) {
+		} else if (biome.test(Tags.Biomes.IS_DENSE_VEGETATION)) {
 			return Biomes.FOREST.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_VEGETATION_SPARSE) || biome.is(ConventionalBiomeTagsV1.VEGETATION_SPARSE) || biome.is(ForgeTags.Biomes.IS_SPARSE)) {
+		} else if (biome.test(Tags.Biomes.IS_SPARSE_VEGETATION)) {
 			return Biomes.PLAINS.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_HOT) || biome.is(ConventionalBiomeTagsV1.CLIMATE_HOT) || biome.is(ForgeTags.Biomes.IS_HOT)) {
+		} else if (biome.test(Tags.Biomes.IS_HOT)) {
 			return Biomes.DESERT.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_COLD) || biome.is(ConventionalBiomeTagsV1.CLIMATE_COLD) || biome.is(ForgeTags.Biomes.IS_COLD)) {
+		} else if (biome.test(Tags.Biomes.IS_COLD)) {
 			return Biomes.SNOWY_PLAINS.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_TEMPERATE) || biome.is(ConventionalBiomeTagsV1.CLIMATE_TEMPERATE)) {
+		} else if (biome.test(Tags.Biomes.IS_TEMPERATE)) {
 			return Biomes.PLAINS.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_DRY) || biome.is(ConventionalBiomeTagsV1.CLIMATE_DRY) || biome.is(ForgeTags.Biomes.IS_DRY)) {
+		} else if (biome.test(Tags.Biomes.IS_DRY)) {
 			return Biomes.BADLANDS.location();
-		} else if (biome.is(ConventionalBiomeTagsV2.IS_WET) || biome.is(ConventionalBiomeTagsV1.CLIMATE_WET) || biome.is(ForgeTags.Biomes.IS_WET)) {
+		} else if (biome.test(Tags.Biomes.IS_WET)) {
 			return Biomes.SWAMP.location();
 		}
 		return null;
