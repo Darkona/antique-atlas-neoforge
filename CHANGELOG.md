@@ -6,6 +6,9 @@ Links such as `antique-atlas#358` go to the [original project's issues](https://
 
 ## [Unreleased]
 
+### Fixed
+- 2026-10-29: Swamps show their water feature on the map again: the feature looked for the old Fabric tag `c:swamp`, which does not exist on NeoForge; it now uses NeoForge's `c:is_swamp`.
+
 ## [2.1.0+1.21-neoforge] - 2026-10-29
 
 ### Added
