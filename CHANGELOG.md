@@ -6,6 +6,8 @@ Links such as `antique-atlas#358` go to the [original project's issues](https://
 
 ## [Unreleased]
 
+## [2.1.0+1.21-neoforge] - 2026-10-29
+
 ### Added
 - 2026-10-18: Two marker icons for your own markers: `tomb` and `nether_portal`, from the original Antique Atlas by Hunternif (CC BY-NC-SA), recolored with an accent layer like the other icons.
 
