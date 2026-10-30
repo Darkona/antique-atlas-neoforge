@@ -178,7 +178,7 @@ public class AntiqueAtlasConfig {
 			"-2 will use half your GUI scale, rounding down."
 		).defineInRange("mapScale", d.mapScale, -2, 10);
 		CHUNK_TICK_LIMIT = b.comment("The maximum number of chunks to load onto the map per tick after entering a world").defineInRange("chunkTickLimit", d.chunkTickLimit, 1, Integer.MAX_VALUE);
-		FALLBACK_FAIL_HANDLING = b.comment("How to handle biomes that aren't in any minecraft, conventional, or forge biome tags").defineEnum("fallbackFailHandling", d.fallbackFailHandling);
+		FALLBACK_FAIL_HANDLING = b.comment("How to handle biomes that aren't in any Minecraft or NeoForge (c:) biome tag").defineEnum("fallbackFailHandling", d.fallbackFailHandling);
 		EMPTY_HANDLING = b.comment("How to display areas that aren't explored yet").defineEnum("emptyHandling", d.emptyHandling);
 		FADE_EDGES = b.comment("Whether tiles next to unexplored areas fade out towards them, instead of ending in a hard edge (antique-atlas#87)").define("fadeEdges", d.fadeEdges);
 		PICK_STRUCTURE_MARKERS = b.comment("Whether structure marker icons can be picked for your own markers.", "AUTO: only on servers without Surveyor, where structures aren't discovered for you.").defineEnum("pickStructureMarkers", d.pickStructureMarkers);
