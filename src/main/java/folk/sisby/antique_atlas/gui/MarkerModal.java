@@ -215,21 +215,21 @@ public class MarkerModal extends Component {
 	}
 
 	@Override
-	public void render(GuiGraphics context, int mouseX, int mouseY, float partialTick) {
-		this.renderBackground(context, mouseX, mouseY, partialTick);
-		drawCentered(context, net.minecraft.network.chat.Component.translatable("gui.antique_atlas.marker.label"), this.height / 2 - 80, 0xDDDDDD, true);
-		btnCancel.render(context, mouseX, mouseY, partialTick);
-		btnDone.render(context, mouseX, mouseY, partialTick);
-		textField.render(context, mouseX, mouseY, partialTick);
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+		this.renderBackground(graphics, mouseX, mouseY, partialTick);
+		drawCentered(graphics, net.minecraft.network.chat.Component.translatable("gui.antique_atlas.marker.label"), this.height / 2 - 80, 0xDDDDDD, true);
+		btnCancel.render(graphics, mouseX, mouseY, partialTick);
+		btnDone.render(graphics, mouseX, mouseY, partialTick);
+		textField.render(graphics, mouseX, mouseY, partialTick);
 		// Darker background for marker type selector
-		context.fillGradient(textureScrollBox.getGuiX() + 1, textureScrollBox.getGuiY() + 1,
+		graphics.fillGradient(textureScrollBox.getGuiX() + 1, textureScrollBox.getGuiY() + 1,
 			textureScrollBox.getGuiX() + textureScrollBox.getWidth(),
 			textureScrollBox.getGuiY() + textureScrollBox.getHeight(),
 			0x88101010, 0x99101010);
-		context.fillGradient(colorScrollBox.getGuiX() + 1, colorScrollBox.getGuiY() + 1,
+		graphics.fillGradient(colorScrollBox.getGuiX() + 1, colorScrollBox.getGuiY() + 1,
 			colorScrollBox.getGuiX() + colorScrollBox.getWidth(),
 			colorScrollBox.getGuiY() + colorScrollBox.getHeight(),
 			0x88101010, 0x99101010);
-		super.render(context, mouseX, mouseY, partialTick);
+		super.render(graphics, mouseX, mouseY, partialTick);
 	}
 }

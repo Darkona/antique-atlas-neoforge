@@ -18,16 +18,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ItemInHandRenderer.class)
 public class ItemInHandRendererMixin {
 	@Inject(method = "renderMap", at = @At("HEAD"), cancellable = true)
-	protected void renderFirstPersonAtlas(PoseStack matrices, MultiBufferSource vertexConsumers, int light, ItemStack stack, CallbackInfo ci) {
+	protected void renderFirstPersonAtlas(PoseStack poseStack, MultiBufferSource bufferSource, int light, ItemStack stack, CallbackInfo ci) {
 		if (Minecraft.getInstance().player == null || Minecraft.getInstance().level == null) return;
 		if (!(AntiqueAtlas.isHandheldAtlas(stack))) return;
-		HandheldAtlasRenderer.fromContext(Minecraft.getInstance().player).renderHandheldAtlas(matrices, vertexConsumers, light);
+		HandheldAtlasRenderer.fromContext(Minecraft.getInstance().player).renderHandheldAtlas(poseStack, bufferSource, light);
 		ci.cancel();
 	}
 
 	// Fix: NeoForge patches the FILLED_MAP check into instanceof MapItem.
 	@ModifyExpressionValue(method = "renderArmWithItem", at = @At(value = "CONSTANT", args = "classValue=net/minecraft/world/item/MapItem", ordinal = 0))
-	protected boolean enableFirstPersonAtlasRendering(boolean original, AbstractClientPlayer player, float tickDelta, float pitch, InteractionHand hand, float swingProgress, ItemStack stack, float equipProgress, PoseStack matrices, MultiBufferSource vertexConsumers, int light) {
+	protected boolean enableFirstPersonAtlasRendering(boolean original, AbstractClientPlayer player, float partialTick, float pitch, InteractionHand hand, float swingProgress, ItemStack stack, float equipProgress, PoseStack poseStack, MultiBufferSource bufferSource, int light) {
 		return original || AntiqueAtlas.isHandheldAtlas(stack);
 	}
 }

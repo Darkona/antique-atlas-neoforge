@@ -30,20 +30,20 @@ public class ScrollBoxComponent extends Component {
 		this.addChild(viewport);
 	}
 
-	public void renderArrow(GuiGraphics context, int mouseX, int mouseY, boolean prev) {
+	public void renderArrow(GuiGraphics graphics, int mouseX, int mouseY, boolean prev) {
 		int x = !vertical ? (prev ? getGuiX() - ARROW_SIZE : getGuiX() + getWidth()) : getGuiX() + (getWidth() - ARROW_SIZE) / 2;
 		int y = vertical ? (prev ? getGuiY() - ARROW_SIZE : getGuiY() + getHeight()) : getGuiY() + (getHeight() - ARROW_SIZE) / 2;
 		boolean hovered = new Rect2i(x, y, ARROW_SIZE, ARROW_SIZE).contains(mouseX, mouseY);
 		int u = (prev ? 0 : ARROW_SIZE);
 		int v = (vertical ? 0 : ARROW_SIZE) + (hovered ? ARROW_SIZE * 2 : 0);
-		context.blit(ARROW, x, y, u, v, ARROW_SIZE, ARROW_SIZE, ARROW_TEXTURE_WIDTH, ARROW_TEXTURE_HEIGHT);
+		graphics.blit(ARROW, x, y, u, v, ARROW_SIZE, ARROW_SIZE, ARROW_TEXTURE_WIDTH, ARROW_TEXTURE_HEIGHT);
 	}
 
 	@Override
-	public void render(GuiGraphics context, int mouseX, int mouseY, float partialTick) {
-		super.render(context, mouseX, mouseY, partialTick);
-		if (scrollPos > 0) renderArrow(context, mouseX, mouseY, true);
-		if (scrollPos < getContentSize() - getViewportSize()) renderArrow(context, mouseX, mouseY, false);
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+		super.render(graphics, mouseX, mouseY, partialTick);
+		if (scrollPos > 0) renderArrow(graphics, mouseX, mouseY, true);
+		if (scrollPos < getContentSize() - getViewportSize()) renderArrow(graphics, mouseX, mouseY, false);
 	}
 
 	public boolean clickArrow(double mouseX, double mouseY, boolean prev) {

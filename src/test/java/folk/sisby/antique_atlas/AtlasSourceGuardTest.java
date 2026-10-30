@@ -156,7 +156,7 @@ class AtlasSourceGuardTest {
 	void frameBlended() throws IOException {
 		String src = read("gui/AtlasScreen.java");
 		String frame = src.substring(src.indexOf("// Overlay the frame so that edges of the map are smooth:"));
-		frame = frame.substring(0, frame.indexOf("context.pose().pushPose();"));
+		frame = frame.substring(0, frame.indexOf("graphics.pose().pushPose();"));
 		assertTrue(frame.indexOf("RenderSystem.enableBlend()") < frame.indexOf("BOOK_FRAME"), "blend must be on before the frame is drawn");
 	}
 
@@ -164,8 +164,8 @@ class AtlasSourceGuardTest {
 	@DisplayName("Every pushPose of the hover tooltip is popped")
 	void tooltipPosePopped() throws IOException {
 		String src = read("gui/AtlasScreen.java");
-		String tooltip = src.substring(src.indexOf("context.pose().translate(getMouseX(), getMouseY(), 0);"));
-		tooltip = tooltip.substring(0, tooltip.indexOf("context.pose().popPose();"));
+		String tooltip = src.substring(src.indexOf("graphics.pose().translate(getMouseX(), getMouseY(), 0);"));
+		tooltip = tooltip.substring(0, tooltip.indexOf("graphics.pose().popPose();"));
 		assertFalse(tooltip.contains("return;"), "a return between pushPose and popPose leaks the pose");
 	}
 

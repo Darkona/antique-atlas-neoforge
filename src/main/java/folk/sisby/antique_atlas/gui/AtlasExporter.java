@@ -39,7 +39,7 @@ public record AtlasExporter(ExportLayout layout, WorldAtlasData worldAtlasData, 
 	 * Renders the map and saves it. Render thread only (called from the atlas screen's input handling).
 	 */
 	public static void export(ResourceKey<Level> dim, WorldAtlasData data, int tileChunks, boolean markers, Consumer<Component> messages) {
-		Minecraft client = Minecraft.getInstance();
+		Minecraft minecraft = Minecraft.getInstance();
 		Rect scope = data.getScope();
 		ExportLayout layout = ExportLayout.of(scope.minX, scope.minY, scope.maxX, scope.maxY, tileChunks, Math.min(ExportLayout.MAX_PIXELS, RenderSystem.maxSupportedTextureSize()));
 		if (layout == null) {
@@ -49,13 +49,13 @@ public record AtlasExporter(ExportLayout layout, WorldAtlasData worldAtlasData, 
 		long started = AtlasDebug.on ? Util.getMillis() : 0;
 		NativeImage image;
 		try {
-			image = new AtlasExporter(layout, data, dim, client.player).draw(markers);
+			image = new AtlasExporter(layout, data, dim, minecraft.player).draw(markers);
 		} catch (RuntimeException e) {
 			AntiqueAtlas.LOGGER.error("[Antique Atlas] Couldn't draw the map export", e);
 			messages.accept(Component.translatable("gui.antique_atlas.export.failure", e.getMessage()));
 			return;
 		}
-		File directory = new File(new File(client.gameDirectory, "screenshots"), "atlas");
+		File directory = new File(new File(minecraft.gameDirectory, "screenshots"), "atlas");
 		String name = ExportLayout.fileName(dim.location().toString(), Util.getFilenameFormattedDateTime());
 		Util.ioPool().execute(() -> {
 			try {
@@ -65,10 +65,10 @@ public record AtlasExporter(ExportLayout layout, WorldAtlasData worldAtlasData, 
 				if (AtlasDebug.on) AtlasDebug.log("Exported {} to {}: {}x{} pixels, {} chunks per tile, {} ms", dim.location(), file, layout.width(), layout.height(), layout.tileChunks(), Util.getMillis() - started);
 				Component link = Component.literal("screenshots/atlas/" + file.getName()).withStyle(ChatFormatting.UNDERLINE)
 					.withStyle(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, file.getAbsolutePath())));
-				client.execute(() -> messages.accept(Component.translatable("gui.antique_atlas.export.success", link, layout.width(), layout.height(), layout.tileChunks())));
+				minecraft.execute(() -> messages.accept(Component.translatable("gui.antique_atlas.export.success", link, layout.width(), layout.height(), layout.tileChunks())));
 			} catch (Exception e) {
 				AntiqueAtlas.LOGGER.warn("[Antique Atlas] Couldn't save the map export", e);
-				client.execute(() -> messages.accept(Component.translatable("gui.antique_atlas.export.failure", String.valueOf(e.getMessage()))));
+				minecraft.execute(() -> messages.accept(Component.translatable("gui.antique_atlas.export.failure", String.valueOf(e.getMessage()))));
 			} finally {
 				image.close();
 			}
@@ -85,7 +85,7 @@ public record AtlasExporter(ExportLayout layout, WorldAtlasData worldAtlasData, 
 	private NativeImage draw(boolean markers) {
 		int width = layout.width();
 		int height = layout.height();
-		Minecraft client = Minecraft.getInstance();
+		Minecraft minecraft = Minecraft.getInstance();
 		RenderTarget target = new TextureTarget(width, height, false, Minecraft.ON_OSX);
 		RenderSystem.backupProjectionMatrix();
 		Matrix4fStack modelView = RenderSystem.getModelViewStack();
@@ -121,7 +121,7 @@ public record AtlasExporter(ExportLayout layout, WorldAtlasData worldAtlasData, 
 			RenderSystem.applyModelViewMatrix();
 			RenderSystem.restoreProjectionMatrix();
 			target.destroyBuffers();
-			client.getMainRenderTarget().bindWrite(true);
+			minecraft.getMainRenderTarget().bindWrite(true);
 		}
 	}
 

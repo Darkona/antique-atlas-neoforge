@@ -17,7 +17,7 @@ public class AntiqueAtlasKeybindings {
 		NeoForge.EVENT_BUS.addListener(ClientTickEvent.Post.class, e -> onClientTick(Minecraft.getInstance()));
 	}
 
-	public static void onClientTick(Minecraft client) {
+	public static void onClientTick(Minecraft minecraft) {
 		while (ATLAS_KEYMAPPING.consumeClick()) AntiqueAtlas.openAtlasScreen();
 	}
 }

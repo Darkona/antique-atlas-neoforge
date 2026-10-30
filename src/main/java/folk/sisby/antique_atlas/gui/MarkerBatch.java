@@ -5,21 +5,21 @@ import folk.sisby.antique_atlas.util.DrawBatcher;
 import net.minecraft.resources.ResourceLocation;
 
 public final class MarkerBatch implements AutoCloseable {
-	private final PoseStack matrices;
+	private final PoseStack poseStack;
 	private final int light;
 	private DrawBatcher open;
 	private ResourceLocation openTexture;
 	private int openWidth, openHeight;
 
-	public MarkerBatch(PoseStack matrices, int light) {
-		this.matrices = matrices;
+	public MarkerBatch(PoseStack poseStack, int light) {
+		this.poseStack = poseStack;
 		this.light = light;
 	}
 
 	public DrawBatcher batcher(ResourceLocation texture, int textureWidth, int textureHeight) {
 		if (open != null && texture.equals(openTexture) && textureWidth == openWidth && textureHeight == openHeight) return open;
 		flush();
-		open = new DrawBatcher(matrices, null, texture, textureWidth, textureHeight, light, false);
+		open = new DrawBatcher(poseStack, null, texture, textureWidth, textureHeight, light, false);
 		openTexture = texture;
 		openWidth = textureWidth;
 		openHeight = textureHeight;

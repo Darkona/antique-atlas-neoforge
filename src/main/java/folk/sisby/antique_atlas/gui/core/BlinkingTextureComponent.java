@@ -46,7 +46,7 @@ public class BlinkingTextureComponent extends Component {
 	}
 
 	@Override
-	public void render(GuiGraphics context, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
 		long currentTime = System.currentTimeMillis();
 		if (lastTickTime + blinkTime < currentTime) {
 			lastTickTime = currentTime;
@@ -56,13 +56,13 @@ public class BlinkingTextureComponent extends Component {
 		RenderSystem.enableBlend();
 		RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-		drawImage(context);
+		drawImage(graphics);
 
 		RenderSystem.disableBlend();
 		RenderSystem.setShaderColor(1, 1, 1, 1);
 	}
 
-	protected void drawImage(GuiGraphics context) {
-		context.blit(texture, getGuiX(), getGuiY(), 0, 0, getWidth(), getHeight(), getWidth(), getHeight());
+	protected void drawImage(GuiGraphics graphics) {
+		graphics.blit(texture, getGuiX(), getGuiY(), 0, 0, getWidth(), getHeight(), getWidth(), getHeight());
 	}
 }

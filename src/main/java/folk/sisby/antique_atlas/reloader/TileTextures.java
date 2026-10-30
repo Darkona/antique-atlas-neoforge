@@ -168,10 +168,10 @@ public class TileTextures extends SimplePreparableReloadListener<Map<ResourceLoc
 			this.tilesToThisVertical = tilesToThisVertical;
 		}
 
-		public void warnMissing(ResourceLocation thisId, Set<ResourceLocation> identifiers) {
+		public void warnMissing(ResourceLocation thisId, Set<ResourceLocation> ids) {
 			for (Set<ExtraCodecs.TagOrElementLocation> entrySet : List.of(tilesTo, tilesToHorizontal, tilesToVertical, tilesToThis, tilesToThisHorizontal, tilesToThisVertical)) {
 				for (ExtraCodecs.TagOrElementLocation entry : entrySet) {
-					if (!entry.tag() && !identifiers.contains(entry.id())) {
+					if (!entry.tag() && !ids.contains(entry.id())) {
 						AntiqueAtlas.LOGGER.warn("[Antique Atlas] Tile texture {} references texture {}, which is missing!", thisId, entry.id());
 					}
 				}

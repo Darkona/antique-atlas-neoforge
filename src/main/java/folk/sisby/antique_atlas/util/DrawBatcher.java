@@ -32,15 +32,15 @@ public class DrawBatcher implements AutoCloseable {
 		return IrisShaders.inUse();
 	}
 
-	public static void drawSingle(PoseStack matrices, MultiBufferSource vertexConsumers, ResourceLocation texture, int textureWidth, int textureHeight, int light, int x, int y, float z, int width, int height, int u, int v, int regionWidth, int regionHeight, int argb, boolean drawingTransparent) {
-		try (DrawBatcher batcher = new DrawBatcher(matrices, vertexConsumers, texture, textureWidth, textureHeight, light, drawingTransparent)) {
+	public static void drawSingle(PoseStack poseStack, MultiBufferSource bufferSource, ResourceLocation texture, int textureWidth, int textureHeight, int light, int x, int y, float z, int width, int height, int u, int v, int regionWidth, int regionHeight, int argb, boolean drawingTransparent) {
+		try (DrawBatcher batcher = new DrawBatcher(poseStack, bufferSource, texture, textureWidth, textureHeight, light, drawingTransparent)) {
 			batcher.add(x, y, z, width, height, u, v, regionWidth, regionHeight, argb);
 		}
 	}
 
-	public DrawBatcher(PoseStack matrices, MultiBufferSource vertexConsumers, ResourceLocation texture, int textureWidth, int textureHeight, int light, boolean drawingTransparent) {
-		this.inWorld = vertexConsumers != null;
-		if (vertexConsumers == null) {
+	public DrawBatcher(PoseStack poseStack, MultiBufferSource bufferSource, ResourceLocation texture, int textureWidth, int textureHeight, int light, boolean drawingTransparent) {
+		this.inWorld = bufferSource != null;
+		if (bufferSource == null) {
 			RenderSystem.enableBlend();
 			RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			RenderSystem.setShaderTexture(0, texture);
@@ -51,15 +51,15 @@ public class DrawBatcher implements AutoCloseable {
 			this.bufferBuilder = null;
 			if (IrisShaders.inUse()) {
 				if (drawingTransparent) {
-					this.vertexConsumer = vertexConsumers.getBuffer(RenderType.entityNoOutline(texture));
+					this.vertexConsumer = bufferSource.getBuffer(RenderType.entityNoOutline(texture));
 				} else {
-					this.vertexConsumer = vertexConsumers.getBuffer(RenderType.entitySolid(texture));
+					this.vertexConsumer = bufferSource.getBuffer(RenderType.entitySolid(texture));
 				}
 			} else {
-				this.vertexConsumer = vertexConsumers.getBuffer(RenderType.text(texture));
+				this.vertexConsumer = bufferSource.getBuffer(RenderType.text(texture));
 			}
 		}
-		this.matrix4f = matrices.last().pose();
+		this.matrix4f = poseStack.last().pose();
 		this.textureWidth = textureWidth;
 		this.textureHeight = textureHeight;
 		this.light = light;

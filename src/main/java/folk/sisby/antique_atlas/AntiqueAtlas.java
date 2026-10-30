@@ -222,7 +222,7 @@ public class AntiqueAtlas {
 			}
 		});
 		modBus.addListener(FMLClientSetupEvent.class, e -> e.enqueueWork(() ->
-			ItemProperties.register(Items.BOOK, AntiqueAtlas.id("atlas"), ((stack, world, entity, seed) -> isHandheldAtlas(stack) ? 1.0F : 0.0F))
+			ItemProperties.register(Items.BOOK, AntiqueAtlas.id("atlas"), ((stack, level, entity, seed) -> isHandheldAtlas(stack) ? 1.0F : 0.0F))
 		));
 
 		SurveyorClientEvents.Register.terrainUpdated(id("world_data"), (s, k) -> {

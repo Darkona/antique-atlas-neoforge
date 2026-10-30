@@ -41,36 +41,36 @@ public record HandheldAtlasRenderer(int bookX, int bookY, int bookWidth, int boo
 		);
 	}
 
-	public void renderHandheldAtlas(PoseStack matrices, MultiBufferSource vertexConsumers, int light) {
-		matrices.pushPose();
-		matrices.mulPose(Axis.YP.rotationDegrees(180.0F));
-		matrices.mulPose(Axis.ZP.rotationDegrees(180.0F));
-		matrices.scale(0.38F * 142.0F / 218.0F, 0.38F * 142.0F / 218.0F, 0.38F);
-		matrices.translate(-1.2D, -0.88D, 0D);
-		matrices.scale(1.0F / 128.0F, 1.0F / 128.0F, 1.0F / 128.0F);
+	public void renderHandheldAtlas(PoseStack poseStack, MultiBufferSource bufferSource, int light) {
+		poseStack.pushPose();
+		poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+		poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
+		poseStack.scale(0.38F * 142.0F / 218.0F, 0.38F * 142.0F / 218.0F, 0.38F);
+		poseStack.translate(-1.2D, -0.88D, 0D);
+		poseStack.scale(1.0F / 128.0F, 1.0F / 128.0F, 1.0F / 128.0F);
 
-		DrawBatcher.drawSingle(matrices, vertexConsumers, AtlasScreen.BOOK, bookWidth, bookHeight, light, bookX, bookY, 0.01F, bookWidth, bookHeight, 0, 0, bookWidth, bookHeight, 0xFFFFFFFF, false);
+		DrawBatcher.drawSingle(poseStack, bufferSource, AtlasScreen.BOOK, bookWidth, bookHeight, light, bookX, bookY, 0.01F, bookWidth, bookHeight, 0, 0, bookWidth, bookHeight, 0xFFFFFFFF, false);
 
 		if (!(Minecraft.getInstance().screen instanceof AtlasScreen)) {
-			renderTiles(matrices, vertexConsumers, light);
+			renderTiles(poseStack, bufferSource, light);
 
 			Map<UUID, PlayerSummary> friends = AntiqueAtlas.getOrderedFriends();
-			overlays.keySet().forEach(id -> overlays.get(id).onRender(new AtlasOverlay.AtlasRenderContext(this, matrices, vertexConsumers, null, null, light, 1.0F, friends)));
+			overlays.keySet().forEach(id -> overlays.get(id).onRender(new AtlasOverlay.AtlasRenderContext(this, poseStack, bufferSource, null, null, light, 1.0F, friends)));
 
 			EDGE_FADE.set(bookX + MAP_BORDER_WIDTH, bookY + MAP_BORDER_HEIGHT, mapWidth, mapHeight);
 			for (Map.Entry<Landmark, MarkerTexture> entry : worldAtlasData.getAllMarkers(tileChunks).entrySet()) {
-				drawMarker(matrices, vertexConsumers, entry.getKey(), entry.getValue(), -0.02F, light, EDGE_FADE, false, false, 1);
+				drawMarker(poseStack, bufferSource, entry.getKey(), entry.getValue(), -0.02F, light, EDGE_FADE, false, false, 1);
 			}
 
 			UUID self = SurveyorClient.getClientUuid();
 			for (Map.Entry<UUID, PlayerSummary> entry : friends.entrySet()) {
-				renderPlayer(matrices, vertexConsumers, -0.04F, light, entry.getValue(), 1, 1, false, entry.getKey().equals(self));
+				renderPlayer(poseStack, bufferSource, -0.04F, light, entry.getValue(), 1, 1, false, entry.getKey().equals(self));
 			}
 
-			DrawBatcher.drawSingle(matrices, vertexConsumers, BOOK_FRAME, bookWidth, bookHeight, light, bookX, bookY, -0.03F, bookWidth, bookHeight, 0, 0, bookWidth, bookHeight, 0xFFFFFFFF, true);
+			DrawBatcher.drawSingle(poseStack, bufferSource, BOOK_FRAME, bookWidth, bookHeight, light, bookX, bookY, -0.03F, bookWidth, bookHeight, 0, 0, bookWidth, bookHeight, 0xFFFFFFFF, true);
 		}
 
-		matrices.popPose();
+		poseStack.popPose();
 	}
 
 	private static final class EdgeFade implements MarkerAlpha {

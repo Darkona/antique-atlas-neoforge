@@ -21,10 +21,10 @@ public class TextBookmarkButton extends BookmarkButton {
 	}
 
 	@Override
-	public void renderTooltip(GuiGraphics context, int mouseX, int mouseY, float partialTick, boolean mouseOver) {
+	public void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, boolean mouseOver) {
 		boolean isExtended = mouseOver || isSelected();
 		int centerOffsetX = (SHORT_WIDTH - font.width(label)) / 2;
-		context.drawString(font, label, getGuiX() + centerOffsetX + (isExtended ? 3 : 0), getGuiY() + 5, 0xFF000000, false);
-		if (!label.getString().equals("1c")) super.renderTooltip(context, mouseX, mouseY, partialTick, mouseOver);
+		graphics.drawString(font, label, getGuiX() + centerOffsetX + (isExtended ? 3 : 0), getGuiY() + 5, 0xFF000000, false);
+		if (!label.getString().equals("1c")) super.renderTooltip(graphics, mouseX, mouseY, partialTick, mouseOver);
 	}
 }

@@ -13,7 +13,7 @@ public class MarkerBookmarkButton extends BookmarkButton {
 	}
 
 	@Override
-	public void drawIcon(GuiGraphics context, int x, int y) {
-		markerTexture.drawIcon(context, x, y, iconTint);
+	public void drawIcon(GuiGraphics graphics, int x, int y) {
+		markerTexture.drawIcon(graphics, x, y, iconTint);
 	}
 }

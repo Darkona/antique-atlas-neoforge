@@ -62,11 +62,11 @@ public record MarkerTexture(ResourceLocation id, ResourceLocation accentId, Reso
 		return textureWidth * textureHeight / (double) (1 << mipLevel);
 	}
 
-	public void drawIcon(GuiGraphics context, int x, int y, float[] accent) {
-		context.blit(id, x, y, 0, 0, textureWidth, textureHeight, fullTextureWidth(), textureHeight);
+	public void drawIcon(GuiGraphics graphics, int x, int y, float[] accent) {
+		graphics.blit(id, x, y, 0, 0, textureWidth, textureHeight, fullTextureWidth(), textureHeight);
 		if (accentId != null && accent != null) {
 			RenderSystem.setShaderColor(accent[0], accent[1], accent[2], 1F);
-			context.blit(accentId, x, y, 0, 0, textureWidth, textureHeight, fullTextureWidth(), textureHeight);
+			graphics.blit(accentId, x, y, 0, 0, textureWidth, textureHeight, fullTextureWidth(), textureHeight);
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		}
 	}
@@ -100,25 +100,25 @@ public record MarkerTexture(ResourceLocation id, ResourceLocation accentId, Reso
 		}
 	}
 
-	public void draw(PoseStack matrices, MultiBufferSource vertexConsumers, double markerX, double markerY, float z, float markerScale, int tileChunks, float[] accent, float tint, float alpha, int light) {
+	public void draw(PoseStack poseStack, MultiBufferSource bufferSource, double markerX, double markerY, float z, float markerScale, int tileChunks, float[] accent, float tint, float alpha, int light) {
 		if (alpha == 0) return;
-		matrices.pushPose();
-		matrices.translate(markerX, markerY, 0.0);
-		matrices.scale(markerScale, markerScale, 1.0F);
+		poseStack.pushPose();
+		poseStack.translate(markerX, markerY, 0.0);
+		poseStack.scale(markerScale, markerScale, 1.0F);
 		int mainArgb = FastColor.ARGB32.color((int) (alpha * 255), (int) (tint * 255), (int) (tint * 255), (int) (tint * 255));
 		int accentArgb = accent != null ? FastColor.ARGB32.color((int) (alpha * 255), (int) (tint * accent[0] * 255), (int) (tint * accent[1] * 255), (int) (tint * accent[2] * 255)) : 0;
 		if (tileChunks > 1 && mipLevels > 0) {
 			int mipLevel = Mth.clamp(Mth.ceillog2(tileChunks), 0, mipLevels);
-			DrawBatcher.drawSingle(matrices, vertexConsumers, id, fullTextureWidth(), textureHeight, light, offsetX / (1 << mipLevel), offsetY / (1 << mipLevel), z, textureWidth / (1 << mipLevel), textureHeight / (1 << mipLevel), getU(mipLevel), 0, textureWidth / (1 << mipLevel), textureHeight / (1 << mipLevel), mainArgb, false);
+			DrawBatcher.drawSingle(poseStack, bufferSource, id, fullTextureWidth(), textureHeight, light, offsetX / (1 << mipLevel), offsetY / (1 << mipLevel), z, textureWidth / (1 << mipLevel), textureHeight / (1 << mipLevel), getU(mipLevel), 0, textureWidth / (1 << mipLevel), textureHeight / (1 << mipLevel), mainArgb, false);
 			if (accentId != null && accent != null) {
-				DrawBatcher.drawSingle(matrices, vertexConsumers, accentId, fullTextureWidth(), textureHeight, light, offsetX / (1 << mipLevel), offsetY / (1 << mipLevel), z, textureWidth / (1 << mipLevel), textureHeight / (1 << mipLevel), getU(mipLevel), 0, textureWidth / (1 << mipLevel), textureHeight / (1 << mipLevel), accentArgb, false);
+				DrawBatcher.drawSingle(poseStack, bufferSource, accentId, fullTextureWidth(), textureHeight, light, offsetX / (1 << mipLevel), offsetY / (1 << mipLevel), z, textureWidth / (1 << mipLevel), textureHeight / (1 << mipLevel), getU(mipLevel), 0, textureWidth / (1 << mipLevel), textureHeight / (1 << mipLevel), accentArgb, false);
 			}
 		} else {
-			DrawBatcher.drawSingle(matrices, vertexConsumers, id, fullTextureWidth(), textureHeight, light, offsetX, offsetY, z, textureWidth, textureHeight, 0, 0, textureWidth, textureHeight, mainArgb, false);
+			DrawBatcher.drawSingle(poseStack, bufferSource, id, fullTextureWidth(), textureHeight, light, offsetX, offsetY, z, textureWidth, textureHeight, 0, 0, textureWidth, textureHeight, mainArgb, false);
 			if (accentId != null && accent != null) {
-				DrawBatcher.drawSingle(matrices, vertexConsumers, accentId, fullTextureWidth(), textureHeight, light, offsetX, offsetY, z, textureWidth, textureHeight, 0, 0, textureWidth, textureHeight, accentArgb, false);
+				DrawBatcher.drawSingle(poseStack, bufferSource, accentId, fullTextureWidth(), textureHeight, light, offsetX, offsetY, z, textureWidth, textureHeight, 0, 0, textureWidth, textureHeight, accentArgb, false);
 			}
 		}
-		matrices.popPose();
+		poseStack.popPose();
 	}
 }

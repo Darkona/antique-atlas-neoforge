@@ -38,21 +38,21 @@ public class TexturePreviewButton<T> extends ToggleButtonComponent {
 		if (this.tint != null) this.tint = tint;
 	}
 
-	protected void drawTexture(GuiGraphics context, int x, int y) {
+	protected void drawTexture(GuiGraphics graphics, int x, int y) {
 		if (tint != null) RenderSystem.setShaderColor(tint[0], tint[1], tint[2], 1.0F);
-		context.blit(texture, x, y, 0, v, textureWidth, textureHeight, textureWidth, textureHeight + v);
+		graphics.blit(texture, x, y, 0, v, textureWidth, textureHeight, textureWidth, textureHeight + v);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 	}
 
 	@Override
-	public void render(GuiGraphics context, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
 		ResourceLocation frameTexture = isSelected() ? FRAME_SELECTED : FRAME_UNSELECTED;
-		context.blit(frameTexture, getGuiX() + 1, getGuiY() + 1, 0, 0, FRAME_SIZE, FRAME_SIZE, FRAME_SIZE, FRAME_SIZE);
+		graphics.blit(frameTexture, getGuiX() + 1, getGuiY() + 1, 0, 0, FRAME_SIZE, FRAME_SIZE, FRAME_SIZE, FRAME_SIZE);
 
 		int centerX = getGuiX() + (FRAME_SIZE - textureWidth) / 2;
 		int centerY = getGuiY() + (FRAME_SIZE - textureHeight) / 2;
-		drawTexture(context, centerX, centerY);
+		drawTexture(graphics, centerX, centerY);
 
-		super.render(context, mouseX, mouseY, partialTick);
+		super.render(graphics, mouseX, mouseY, partialTick);
 	}
 }

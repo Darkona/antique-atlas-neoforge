@@ -315,11 +315,11 @@ public class Component extends Screen {
 	 * Drawable children are not rendered.
 	 */
 	@Override
-	public void render(GuiGraphics context, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
 		// Do not call super() as it would render the background
 		for (Component child : children) {
 			if (!child.isClipped) {
-				child.render(context, mouseX, mouseY, partialTick);
+				child.render(graphics, mouseX, mouseY, partialTick);
 			}
 		}
 	}
@@ -431,9 +431,9 @@ public class Component extends Screen {
 	/**
 	 * Draw a text string centered horizontally, using this GUI's font.
 	 */
-	public void drawCentered(GuiGraphics context, net.minecraft.network.chat.Component text, int y, int color, boolean dropShadow) {
+	public void drawCentered(GuiGraphics graphics, net.minecraft.network.chat.Component text, int y, int color, boolean dropShadow) {
 		int length = this.font.width(text);
-		context.drawString(font, text, (this.width - length) / 2, y, color, dropShadow);
+		graphics.drawString(font, text, (this.width - length) / 2, y, color, dropShadow);
 	}
 
 	public double getMouseX() {

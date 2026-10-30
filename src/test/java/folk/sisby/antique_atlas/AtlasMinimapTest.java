@@ -35,7 +35,7 @@ class AtlasMinimapTest {
 		String layer = Files.readString(SRC.resolve("gui/MinimapLayer.java"));
 		String visible = layer.substring(layer.indexOf("static boolean visible("));
 		visible = visible.substring(0, visible.indexOf("\n\t}"));
-		for (String check : new String[]{"CONFIG.minimap", "options.hideGui", "client.screen != null", "showDebugScreen()", "hasHandheldAtlas("}) {
+		for (String check : new String[]{"CONFIG.minimap", "options.hideGui", "minecraft.screen != null", "showDebugScreen()", "hasHandheldAtlas("}) {
 			assertTrue(visible.contains(check), "visible() must check " + check);
 		}
 		assertTrue(visible.contains("tick != checkedTick"), "the inventory is checked once per tick, not per frame");

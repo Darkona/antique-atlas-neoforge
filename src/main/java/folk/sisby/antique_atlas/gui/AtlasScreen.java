@@ -677,24 +677,24 @@ public class AtlasScreen extends Component implements AtlasRenderer {
 	private final ScreenMarkerAlpha markerAlpha = new ScreenMarkerAlpha();
 
 	@Override
-	public void render(GuiGraphics context, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
 		int trueMouseX = mouseX;
 		int trueMouseY = mouseY;
 		if (markerModal.getParent() != null) {
 			mouseX = -100;
 			mouseY = -100;
 		}
-		super.renderBackground(context, mouseX, mouseY, partialTick);
+		super.renderBackground(graphics, mouseX, mouseY, partialTick);
 		mapScale = calculateMapScale();
 		RenderSystem.setShaderColor(1, 1, 1, 1);
 
 		if (fullscreen) {
 			int left_width = bookWidth / 2 - 15;
-			context.blitSprite(BOOK_FULLSCREEN, getGuiX(), getGuiY(), left_width, bookHeight);
-			context.blitSprite(BOOK_FULLSCREEN_M, getGuiX() + left_width, getGuiY(), 29, bookHeight);
-			context.blitSprite(BOOK_FULLSCREEN_R, getGuiX() + left_width + 29, getGuiY(), left_width + 1, bookHeight);
+			graphics.blitSprite(BOOK_FULLSCREEN, getGuiX(), getGuiY(), left_width, bookHeight);
+			graphics.blitSprite(BOOK_FULLSCREEN_M, getGuiX() + left_width, getGuiY(), 29, bookHeight);
+			graphics.blitSprite(BOOK_FULLSCREEN_R, getGuiX() + left_width + 29, getGuiY(), left_width + 1, bookHeight);
 		} else {
-			context.blit(BOOK, getGuiX(), getGuiY(), 0, 0, bookWidth, bookHeight, bookWidth, bookHeight);
+			graphics.blit(BOOK, getGuiX(), getGuiY(), 0, 0, bookWidth, bookHeight, bookWidth, bookHeight);
 		}
 
 		if (worldAtlasData == null) return;
@@ -709,7 +709,7 @@ public class AtlasScreen extends Component implements AtlasRenderer {
 		RenderSystem.enableBlend();
 		RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		RenderSystem.setShaderColor(1, 1, 1, state.is(DELETING_MARKER) ? 0.5f : 1.0f);
-		renderTiles(context.pose(), null, MAX_LIGHT);
+		renderTiles(graphics.pose(), null, MAX_LIGHT);
 		RenderSystem.setShaderColor(1, 1, 1, 1);
 		RenderSystem.disableBlend();
 
@@ -719,21 +719,21 @@ public class AtlasScreen extends Component implements AtlasRenderer {
 		RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		if (fullscreen) {
 			int left_width = bookWidth / 2 - 15;
-			context.blitSprite(BOOK_FRAME_FULLSCREEN, getGuiX(), getGuiY(), left_width, bookHeight);
-			context.blitSprite(BOOK_FRAME_FULLSCREEN_M, getGuiX() + left_width, getGuiY(), 29, bookHeight);
-			context.blitSprite(BOOK_FRAME_FULLSCREEN_R, getGuiX() + left_width + 29, getGuiY(), left_width + 1, bookHeight);
+			graphics.blitSprite(BOOK_FRAME_FULLSCREEN, getGuiX(), getGuiY(), left_width, bookHeight);
+			graphics.blitSprite(BOOK_FRAME_FULLSCREEN_M, getGuiX() + left_width, getGuiY(), 29, bookHeight);
+			graphics.blitSprite(BOOK_FRAME_FULLSCREEN_R, getGuiX() + left_width + 29, getGuiY(), left_width + 1, bookHeight);
 		} else {
-			context.blit(BOOK_FRAME, getGuiX(), getGuiY(), 0, 0, bookWidth, bookHeight, bookWidth, bookHeight);
+			graphics.blit(BOOK_FRAME, getGuiX(), getGuiY(), 0, 0, bookWidth, bookHeight, bookWidth, bookHeight);
 		}
 		RenderSystem.disableBlend();
-		context.pose().pushPose();
-		context.pose().translate(getGuiX(), getGuiY(), 0);
+		graphics.pose().pushPose();
+		graphics.pose().translate(getGuiX(), getGuiY(), 0);
 		float markerScale = getEffectiveScale() * (tilePixels / 16.0F);
 
 		Map<UUID, PlayerSummary> friends = AntiqueAtlas.getOrderedFriends();
 
 		for (ResourceLocation id : overlays.keySet()) {
-			overlays.get(id).onScreenRender(new AtlasOverlay.AtlasScreenRenderContext(this, context, mouseX, mouseY, markerScale, friends));
+			overlays.get(id).onScreenRender(new AtlasOverlay.AtlasScreenRenderContext(this, graphics, mouseX, mouseY, markerScale, friends));
 		}
 
 		hoveredLandmark = null;
@@ -804,18 +804,18 @@ public class AtlasScreen extends Component implements AtlasRenderer {
 			}
 			boolean placing = state.is(PLACING_MARKER);
 			boolean deleting = state.is(DELETING_MARKER);
-			try (MarkerBatch batch = new MarkerBatch(context.pose(), MAX_LIGHT)) {
+			try (MarkerBatch batch = new MarkerBatch(graphics.pose(), MAX_LIGHT)) {
 				for (Map.Entry<Landmark, MarkerTexture> entry : worldAtlasData.getAllMarkers(tileChunks).entrySet()) {
 					Landmark landmark = entry.getKey();
 					boolean hovering = hoveredLandmark == landmark && markerModal.getParent() == null;
 					boolean editable = !landmark.owner().equals(WorldLandmarks.GLOBAL) && SurveyorClient.canModify(landmark.owner());
 					markerAlpha.set(placing || (deleting && !editable), editable);
-					drawMarker(context.pose(), null, landmark, entry.getValue(), 0, MAX_LIGHT, markerAlpha, editable, hovering, markerScale, batch);
+					drawMarker(graphics.pose(), null, landmark, entry.getValue(), 0, MAX_LIGHT, markerAlpha, editable, hovering, markerScale, batch);
 				}
 			}
 		}
 
-		context.pose().popPose();
+		graphics.pose().popPose();
 
 		RenderSystem.disableScissor();
 
@@ -823,72 +823,72 @@ public class AtlasScreen extends Component implements AtlasRenderer {
 		RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		if (fullscreen) {
 			int left_width = bookWidth / 2 - 15;
-			context.blitSprite(BOOK_FRAME_NARROW_FULLSCREEN, getGuiX(), getGuiY(), left_width, bookHeight);
-			context.blitSprite(BOOK_FRAME_NARROW_FULLSCREEN_M, getGuiX() + left_width, getGuiY(), 29, bookHeight);
-			context.blitSprite(BOOK_FRAME_NARROW_FULLSCREEN_R, getGuiX() + left_width + 29, getGuiY(), left_width + 1, bookHeight);
+			graphics.blitSprite(BOOK_FRAME_NARROW_FULLSCREEN, getGuiX(), getGuiY(), left_width, bookHeight);
+			graphics.blitSprite(BOOK_FRAME_NARROW_FULLSCREEN_M, getGuiX() + left_width, getGuiY(), 29, bookHeight);
+			graphics.blitSprite(BOOK_FRAME_NARROW_FULLSCREEN_R, getGuiX() + left_width + 29, getGuiY(), left_width + 1, bookHeight);
 		} else {
-			context.blit(BOOK_FRAME_NARROW, getGuiX(), getGuiY(), 0, 0, bookWidth, bookHeight, bookWidth, bookHeight);
+			graphics.blit(BOOK_FRAME_NARROW, getGuiX(), getGuiY(), 0, 0, bookWidth, bookHeight, bookWidth, bookHeight);
 		}
 		RenderSystem.disableBlend();
 
 		markerScrollBox.getViewport().setClipped(state.is(HIDING_MARKERS));
 
-		context.pose().pushPose();
-		context.pose().translate(getGuiX(), getGuiY(), 0);
+		graphics.pose().pushPose();
+		graphics.pose().translate(getGuiX(), getGuiY(), 0);
 		friends.forEach((uuid, friend) -> {
 			boolean self = uuid.equals(SurveyorClient.getClientUuid());
 			boolean inDim = friend.dimension().equals(dim);
 			if (!self && !inDim) return;
 			boolean hovering = hoveredFriend == friend && markerModal.getParent() == null;
 			if (state.is(HIDING_MARKERS) && (!playerBookmark.isSelected() || !self)) return;
-			renderPlayer(context.pose(), null, 0, MAX_LIGHT, friend, getEffectiveScale(), state.is(PLACING_MARKER) ? 0.5F : 1.0F, hovering, self);
+			renderPlayer(graphics.pose(), null, 0, MAX_LIGHT, friend, getEffectiveScale(), state.is(PLACING_MARKER) ? 0.5F : 1.0F, hovering, self);
 		});
-		context.pose().popPose();
+		graphics.pose().popPose();
 
 		if (state.is(PLACING_MARKER)) {
 			RenderSystem.setShaderColor(1, 1, 1, 0.5f);
-			context.blit(markerModal.selectedTexture.id(), mouseX + markerModal.selectedTexture.offsetX(), mouseY + markerModal.selectedTexture.offsetY(), 0, 0, markerModal.selectedTexture.textureWidth(), markerModal.selectedTexture.textureHeight(), markerModal.selectedTexture.textureWidth(), markerModal.selectedTexture.textureHeight());
+			graphics.blit(markerModal.selectedTexture.id(), mouseX + markerModal.selectedTexture.offsetX(), mouseY + markerModal.selectedTexture.offsetY(), 0, 0, markerModal.selectedTexture.textureWidth(), markerModal.selectedTexture.textureHeight(), markerModal.selectedTexture.textureWidth(), markerModal.selectedTexture.textureHeight());
 			RenderSystem.setShaderColor(1, 1, 1, 1);
 		}
 
 		addMarkerBookmark.setTitle(hasShiftDown() ? TEXT_ADD_MARKER_HERE : TEXT_ADD_MARKER);
 
 		if (worldAtlasData.isLoading()) {
-			context.drawString(font, net.minecraft.network.chat.Component.literal("...").withStyle(ChatFormatting.GRAY), getGuiX() + MAP_BORDER_WIDTH + mapWidth - 10, getGuiY() + MAP_BORDER_HEIGHT + mapHeight - 10, 0xFFFFFFFF, true);
+			graphics.drawString(font, net.minecraft.network.chat.Component.literal("...").withStyle(ChatFormatting.GRAY), getGuiX() + MAP_BORDER_WIDTH + mapWidth - 10, getGuiY() + MAP_BORDER_HEIGHT + mapHeight - 10, 0xFFFFFFFF, true);
 		}
 
 		if (hasAltDown() && !isDragging && isMouseOverMap && markerModal.getParent() == null) {
 			int x = screenXToWorldX((int) getMouseX());
 			int z = screenYToWorldZ((int) getMouseY());
 			ChunkPos pos = new ChunkPos(new BlockPos(x, 0, z));
-			context.drawString(font, net.minecraft.network.chat.Component.literal("%d,%d (%d,%d)".formatted(pos.x, pos.z, x, z)), getGuiX(), getGuiY() - 12, 0xFFFFFFFF, true);
+			graphics.drawString(font, net.minecraft.network.chat.Component.literal("%d,%d (%d,%d)".formatted(pos.x, pos.z, x, z)), getGuiX(), getGuiY() - 12, 0xFFFFFFFF, true);
 			if (hoveredLandmark != null) {
 				MarkerTexture texture = worldAtlasData.getMarkerTexture(hoveredLandmark);
-				context.drawString(font, net.minecraft.network.chat.Component.literal(hoveredLandmark.id().toString()), getGuiX() + bookWidth - font.width(net.minecraft.network.chat.Component.literal(hoveredLandmark.id().toString())), getGuiY() - 12, 0xFFFFFFFF, true);
-				if (texture != null) context.drawString(font, net.minecraft.network.chat.Component.literal(texture.displayId()), getGuiX() + bookWidth - font.width(net.minecraft.network.chat.Component.literal(texture.displayId())), getGuiY() + bookHeight, 0xFFFFFFFF, true);
+				graphics.drawString(font, net.minecraft.network.chat.Component.literal(hoveredLandmark.id().toString()), getGuiX() + bookWidth - font.width(net.minecraft.network.chat.Component.literal(hoveredLandmark.id().toString())), getGuiY() - 12, 0xFFFFFFFF, true);
+				if (texture != null) graphics.drawString(font, net.minecraft.network.chat.Component.literal(texture.displayId()), getGuiX() + bookWidth - font.width(net.minecraft.network.chat.Component.literal(texture.displayId())), getGuiY() + bookHeight, 0xFFFFFFFF, true);
 			} else {
 				TileTexture texture = worldAtlasData.getTile(pos);
 				ResourceLocation providerId = worldAtlasData.getProvider(pos);
 				String predicate = worldAtlasData.getTilePredicate(pos);
 				if (texture != null) {
-					if (predicate != null) context.drawString(font, net.minecraft.network.chat.Component.literal(predicate), getGuiX() + bookWidth - font.width(net.minecraft.network.chat.Component.literal(predicate)), getGuiY() - 12, 0xFFFFFFFF, true);
-					if (providerId != null) context.drawString(font, net.minecraft.network.chat.Component.literal(providerId.toString()), getGuiX(), getGuiY() + bookHeight + 14, 0xFFFFFFFF, true);
-					context.drawString(font, net.minecraft.network.chat.Component.literal(texture.displayId()), getGuiX() + bookWidth - font.width(net.minecraft.network.chat.Component.literal(texture.displayId())), getGuiY() + bookHeight, 0xFFFFFFFF, true);
+					if (predicate != null) graphics.drawString(font, net.minecraft.network.chat.Component.literal(predicate), getGuiX() + bookWidth - font.width(net.minecraft.network.chat.Component.literal(predicate)), getGuiY() - 12, 0xFFFFFFFF, true);
+					if (providerId != null) graphics.drawString(font, net.minecraft.network.chat.Component.literal(providerId.toString()), getGuiX(), getGuiY() + bookHeight + 14, 0xFFFFFFFF, true);
+					graphics.drawString(font, net.minecraft.network.chat.Component.literal(texture.displayId()), getGuiX() + bookWidth - font.width(net.minecraft.network.chat.Component.literal(texture.displayId())), getGuiY() + bookHeight, 0xFFFFFFFF, true);
 				}
 			}
 		}
 
 		if (markerModal.getParent() != null) {
 			markerModal.setClipped(true);
-			super.render(context, mouseX, mouseY, partialTick);
+			super.render(graphics, mouseX, mouseY, partialTick);
 			markerModal.setClipped(false);
-			markerModal.render(context, trueMouseX, trueMouseY, partialTick);
+			markerModal.render(graphics, trueMouseX, trueMouseY, partialTick);
 		} else {
-			super.render(context, mouseX, mouseY, partialTick);
+			super.render(graphics, mouseX, mouseY, partialTick);
 		}
 
-		context.pose().pushPose();
-		context.pose().translate(getMouseX(), getMouseY(), 0);
+		graphics.pose().pushPose();
+		graphics.pose().translate(getMouseX(), getMouseY(), 0);
 		if (hoveredLandmark != null) {
 			net.minecraft.network.chat.Component name = hoveredLandmark.get(LandmarkComponentTypes.NAME);
 			if (name != null && hoveredLandmark.id().getPath().startsWith("grave") && !hoveredLandmark.owner().equals(WorldLandmarks.GLOBAL) && !hoveredLandmark.owner().equals(SurveyorClient.getClientUuid())) {
@@ -896,15 +896,15 @@ public class AtlasScreen extends Component implements AtlasRenderer {
 				if (owner != null) name = net.minecraft.network.chat.Component.translatable("gui.antique_atlas.marker.death.owner", owner.username(), name);
 			}
 			if (name != null && !name.getString().isEmpty()) {
-				context.renderComponentTooltip(font, Stream.concat(Stream.of(name), hoveredLandmark.getOrDefault(LandmarkComponentTypes.LORE, new ArrayList<net.minecraft.network.chat.Component>()).stream().map(t -> t.copy().withStyle(ChatFormatting.GRAY))).toList(), 0, 0);
+				graphics.renderComponentTooltip(font, Stream.concat(Stream.of(name), hoveredLandmark.getOrDefault(LandmarkComponentTypes.LORE, new ArrayList<net.minecraft.network.chat.Component>()).stream().map(t -> t.copy().withStyle(ChatFormatting.GRAY))).toList(), 0, 0);
 			}
 		} else if (hoveredFriend != null) {
 			boolean self = hoveredFriend.username().equals(Minecraft.getInstance().player.getGameProfile().getName());
 			boolean inDim = hoveredFriend.dimension().equals(dim);
 			// Fix: returning here skipped popPose(), leaving everything drawn later this frame shifted by the mouse.
-			if (!(self && inDim)) context.renderTooltip(font, (self ? net.minecraft.network.chat.Component.translatable("gui.antique_atlas.followPlayer") : net.minecraft.network.chat.Component.literal(hoveredFriend.username())).withStyle(hoveredFriend.online() ? (self ? ChatFormatting.WHITE : ChatFormatting.LIGHT_PURPLE) : ChatFormatting.GRAY), 0, 0);
+			if (!(self && inDim)) graphics.renderTooltip(font, (self ? net.minecraft.network.chat.Component.translatable("gui.antique_atlas.followPlayer") : net.minecraft.network.chat.Component.literal(hoveredFriend.username())).withStyle(hoveredFriend.online() ? (self ? ChatFormatting.WHITE : ChatFormatting.LIGHT_PURPLE) : ChatFormatting.GRAY), 0, 0);
 		}
-		context.pose().popPose();
+		graphics.pose().popPose();
 	}
 
 	@Override

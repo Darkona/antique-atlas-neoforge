@@ -41,30 +41,30 @@ public final class MinimapLayer {
 	/**
 	 * @return whether the minimap is drawn this frame. Cheap: the inventory is only checked once per tick.
 	 */
-	static boolean visible(Minecraft client) {
-		if (!AntiqueAtlas.CONFIG.minimap || client.options.hideGui || client.screen != null || client.player == null || client.level == null || client.getConnection() == null) return false;
-		if (client.getDebugOverlay().showDebugScreen()) return false;
+	static boolean visible(Minecraft minecraft) {
+		if (!AntiqueAtlas.CONFIG.minimap || minecraft.options.hideGui || minecraft.screen != null || minecraft.player == null || minecraft.level == null || minecraft.getConnection() == null) return false;
+		if (minecraft.getDebugOverlay().showDebugScreen()) return false;
 		if (!AntiqueAtlas.CONFIG.requireItem) return true;
-		long tick = client.level.getGameTime();
+		long tick = minecraft.level.getGameTime();
 		if (tick != checkedTick) {
 			checkedTick = tick;
-			carrying = AntiqueAtlas.hasHandheldAtlas(client.player);
+			carrying = AntiqueAtlas.hasHandheldAtlas(minecraft.player);
 		}
 		return carrying;
 	}
 
 	private static boolean debugShown;
 
-	public static void render(GuiGraphics graphics, DeltaTracker delta) {
-		Minecraft client = Minecraft.getInstance();
-		boolean shown = visible(client);
+	public static void render(GuiGraphics graphics, DeltaTracker deltaTracker) {
+		Minecraft minecraft = Minecraft.getInstance();
+		boolean shown = visible(minecraft);
 		if (AtlasDebug.on && shown != debugShown) {
 			debugShown = shown;
 			AtlasDebug.log("Minimap {}", shown ? "shown" : "hidden");
 		}
 		if (!shown) return;
-		LocalPlayer player = client.player;
-		ResourceKey<Level> dim = client.level.dimension();
+		LocalPlayer player = minecraft.player;
+		ResourceKey<Level> dim = minecraft.level.dimension();
 		if (WorldAtlasData.isEmpty(dim)) return;
 		WorldAtlasData data = WorldAtlasData.getOrCreate(dim);
 
@@ -72,7 +72,7 @@ public final class MinimapLayer {
 		int size = config.minimapSize;
 		int x = config.minimapCorner.left(graphics.guiWidth(), size);
 		int y = config.minimapCorner.top(graphics.guiHeight(), size);
-		float partialTick = delta.getGameTimeDeltaPartialTick(true);
+		float partialTick = deltaTracker.getGameTimeDeltaPartialTick(true);
 		double playerX = Mth.lerp(partialTick, player.xo, player.getX());
 		double playerZ = Mth.lerp(partialTick, player.zo, player.getZ());
 		RENDERER.set(x, y, size, config.minimapTileChunks, playerX, playerZ, player, data, dim);

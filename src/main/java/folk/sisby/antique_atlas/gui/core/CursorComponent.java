@@ -44,7 +44,7 @@ public class CursorComponent extends Component {
 	}
 
 	@Override
-	public void render(GuiGraphics context, int mouseX, int mouseY, float partialTick) {
-		context.blit(texture, mouseX - pointX, mouseY - pointY, 0, 0, textureWidth, textureHeight, textureWidth, textureHeight);
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+		graphics.blit(texture, mouseX - pointX, mouseY - pointY, 0, 0, textureWidth, textureHeight, textureWidth, textureHeight);
 	}
 }

@@ -58,34 +58,34 @@ public class BookmarkButton extends ToggleButtonComponent {
 		this.title = title;
 	}
 
-	public void drawIcon(GuiGraphics context, int x, int y) {
+	public void drawIcon(GuiGraphics graphics, int x, int y) {
 		if (iconTint != null) RenderSystem.setShaderColor(iconTint[0], iconTint[1], iconTint[2], 1.0F);
-		context.blit(iconTexture, x, y, 0, 0, iconWidth, iconHeight, iconWidth, iconHeight);
+		graphics.blit(iconTexture, x, y, 0, 0, iconWidth, iconHeight, iconWidth, iconHeight);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 	}
 
 	@Override
-	public void render(GuiGraphics context, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
 		boolean mouseOver = isMouseOver(mouseX, mouseY);
 		boolean isExtended = mouseOver || isSelected();
 
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		if (backgroundTint != null) RenderSystem.setShaderColor(backgroundTint[0], backgroundTint[1], backgroundTint[2], 1.0F);
-		context.blit(backgroundTexture, getGuiX(), getGuiY(), !vertical || isExtended ? 0 : HEIGHT, vertical || isExtended ? 0 : HEIGHT, vertical ? HEIGHT : WIDTH, vertical ? WIDTH : HEIGHT, vertical ? HEIGHT * 2 : WIDTH, vertical ? WIDTH : HEIGHT * 2);
+		graphics.blit(backgroundTexture, getGuiX(), getGuiY(), !vertical || isExtended ? 0 : HEIGHT, vertical || isExtended ? 0 : HEIGHT, vertical ? HEIGHT : WIDTH, vertical ? WIDTH : HEIGHT, vertical ? HEIGHT * 2 : WIDTH, vertical ? WIDTH : HEIGHT * 2);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
 		if (iconTexture != null) {
 			int iconX = getGuiX() + (!vertical ? (10 - iconWidth / 2 + (isExtended ? (backwards ? 3 : 1) : (backwards ? 4 : 0))) : (9 - iconHeight / 2));
 			int iconY = getGuiY() + (vertical ? (10 - iconWidth / 2 + (isExtended ? (backwards ? 3 : 1) : (backwards ? 4 : 0))) : (9 - iconHeight / 2));
-			drawIcon(context, iconX, iconY);
+			drawIcon(graphics, iconX, iconY);
 		}
 
-		renderTooltip(context, mouseX, mouseY, partialTick, mouseOver);
+		renderTooltip(graphics, mouseX, mouseY, partialTick, mouseOver);
 	}
 
-	public void renderTooltip(GuiGraphics context, int mouseX, int mouseY, float partialTick, boolean mouseOver) {
+	public void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, boolean mouseOver) {
 		if (mouseOver && !title.getString().isEmpty()) {
-			context.renderTooltip(font, title, mouseX, mouseY);
+			graphics.renderTooltip(font, title, mouseX, mouseY);
 		}
 	}
 }

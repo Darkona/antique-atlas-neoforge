@@ -158,15 +158,15 @@ public interface AtlasRenderer {
 	}
 
 	@Deprecated(forRemoval = true)
-	default void renderMarker(PoseStack matrices, MultiBufferSource vertexConsumers, Landmark landmark, MarkerTexture texture, float z, int light, BiFunction<Double, Double, Float> alphaGetter, boolean pinned, boolean hovering, float markerScale) {
-		drawMarker(matrices, vertexConsumers, landmark, texture, z, light, alphaGetter::apply, pinned, hovering, markerScale);
+	default void renderMarker(PoseStack poseStack, MultiBufferSource bufferSource, Landmark landmark, MarkerTexture texture, float z, int light, BiFunction<Double, Double, Float> alphaGetter, boolean pinned, boolean hovering, float markerScale) {
+		drawMarker(poseStack, bufferSource, landmark, texture, z, light, alphaGetter::apply, pinned, hovering, markerScale);
 	}
 
-	default void drawMarker(PoseStack matrices, MultiBufferSource vertexConsumers, Landmark landmark, MarkerTexture texture, float z, int light, MarkerAlpha alphaGetter, boolean pinned, boolean hovering, float markerScale) {
-		drawMarker(matrices, vertexConsumers, landmark, texture, z, light, alphaGetter, pinned, hovering, markerScale, null);
+	default void drawMarker(PoseStack poseStack, MultiBufferSource bufferSource, Landmark landmark, MarkerTexture texture, float z, int light, MarkerAlpha alphaGetter, boolean pinned, boolean hovering, float markerScale) {
+		drawMarker(poseStack, bufferSource, landmark, texture, z, light, alphaGetter, pinned, hovering, markerScale, null);
 	}
 
-	default void drawMarker(PoseStack matrices, MultiBufferSource vertexConsumers, Landmark landmark, MarkerTexture texture, float z, int light, MarkerAlpha alphaGetter, boolean pinned, boolean hovering, float markerScale, @Nullable MarkerBatch batch) {
+	default void drawMarker(PoseStack poseStack, MultiBufferSource bufferSource, Landmark landmark, MarkerTexture texture, float z, int light, MarkerAlpha alphaGetter, boolean pinned, boolean hovering, float markerScale, @Nullable MarkerBatch batch) {
 		BlockPos pos = landmark.get(LandmarkComponentTypes.POS);
 		MarkerGeometry geometry = worldAtlasData().markerGeometry(landmark);
 		float tint = hovering ? MarkerGeometry.HOVER_TINT : 1.0f;
@@ -184,20 +184,20 @@ public interface AtlasRenderer {
 				int chunkZ = ChunkPos.getZ(packed);
 				double markerX = worldXToScreenX(chunkX << 4) - bookX();
 				double markerY = worldZToScreenY(chunkZ << 4) - bookY();
-				matrices.pushPose();
-				matrices.translate(markerX, markerY, 0.0);
-				matrices.scale(effectiveScale, effectiveScale, 1.0F);
+				poseStack.pushPose();
+				poseStack.translate(markerX, markerY, 0.0);
+				poseStack.scale(effectiveScale, effectiveScale, 1.0F);
 				if (size > 0) {
 					float alpha = alphaGetter.alpha(markerX, markerY);
-					DrawUtil.fill(matrices, vertexConsumers, RenderType.textBackgroundSeeThrough(), z, light, 0, 0, size, size, 0.25F * alpha, fillColor);
+					DrawUtil.fill(poseStack, bufferSource, RenderType.textBackgroundSeeThrough(), z, light, 0, 0, size, size, 0.25F * alpha, fillColor);
 					if (lineSize > 0) {
-						if (!geometry.hasChunk(chunkX - 1, chunkZ)) DrawUtil.fill(matrices, vertexConsumers, RenderType.textBackgroundSeeThrough(), z, light, 0, 0, lineSize, size, 0.5F * alpha, fillColor);
-						if (!geometry.hasChunk(chunkX, chunkZ - 1)) DrawUtil.fill(matrices, vertexConsumers, RenderType.textBackgroundSeeThrough(), z, light, 0, 0, size, lineSize, 0.5F * alpha, fillColor);
-						if (!geometry.hasChunk(chunkX + 1, chunkZ)) DrawUtil.fill(matrices, vertexConsumers, RenderType.textBackgroundSeeThrough(), z, light, size - lineSize, 0, size, size, 0.5F * alpha, fillColor);
-						if (!geometry.hasChunk(chunkX, chunkZ + 1)) DrawUtil.fill(matrices, vertexConsumers, RenderType.textBackgroundSeeThrough(), z, light, 0, size - lineSize, size, size, 0.5F * alpha, fillColor);
+						if (!geometry.hasChunk(chunkX - 1, chunkZ)) DrawUtil.fill(poseStack, bufferSource, RenderType.textBackgroundSeeThrough(), z, light, 0, 0, lineSize, size, 0.5F * alpha, fillColor);
+						if (!geometry.hasChunk(chunkX, chunkZ - 1)) DrawUtil.fill(poseStack, bufferSource, RenderType.textBackgroundSeeThrough(), z, light, 0, 0, size, lineSize, 0.5F * alpha, fillColor);
+						if (!geometry.hasChunk(chunkX + 1, chunkZ)) DrawUtil.fill(poseStack, bufferSource, RenderType.textBackgroundSeeThrough(), z, light, size - lineSize, 0, size, size, 0.5F * alpha, fillColor);
+						if (!geometry.hasChunk(chunkX, chunkZ + 1)) DrawUtil.fill(poseStack, bufferSource, RenderType.textBackgroundSeeThrough(), z, light, 0, size - lineSize, size, size, 0.5F * alpha, fillColor);
 					}
 				}
-				matrices.popPose();
+				poseStack.popPose();
 			}
 			return;
 		}
@@ -213,11 +213,11 @@ public interface AtlasRenderer {
 		if (batch != null) {
 			texture.drawBatched(batch, markerX, markerY, z, markerScale, tileChunks(), geometry.accent(), tint, alphaGetter.alpha(markerX, markerY));
 		} else {
-			texture.draw(matrices, vertexConsumers, markerX, markerY, z, markerScale, tileChunks(), geometry.accent(), tint, alphaGetter.alpha(markerX, markerY), light);
+			texture.draw(poseStack, bufferSource, markerX, markerY, z, markerScale, tileChunks(), geometry.accent(), tint, alphaGetter.alpha(markerX, markerY), light);
 		}
 	}
 
-	default void renderPlayer(PoseStack matrices, MultiBufferSource vertexConsumers, float z, int light, PlayerSummary player, float iconScale, float alpha, boolean hovering, boolean self) {
+	default void renderPlayer(PoseStack poseStack, MultiBufferSource bufferSource, float z, int light, PlayerSummary player, float iconScale, float alpha, boolean hovering, boolean self) {
 		double dimX = player.pos().x();
 		double dimZ = player.pos().z();
 
@@ -245,10 +245,10 @@ public interface AtlasRenderer {
 		int argb = FastColor.ARGB32.color((int) (alpha * 255.0), (int) (tint * redTint * 255), (int) (tint * greenTint * 255), (int) (tint * 255));
 		float playerRotation = ((float) Math.round(player.yaw() / 360f * PLAYER_ROTATION_STEPS) / PLAYER_ROTATION_STEPS) * 360f;
 
-		DrawUtil.drawCenteredWithRotation(matrices, vertexConsumers, PLAYER, playerOffsetX, playerOffsetY, z, iconScale, PLAYER_ICON_WIDTH, PLAYER_ICON_HEIGHT, playerRotation, light, argb);
+		DrawUtil.drawCenteredWithRotation(poseStack, bufferSource, PLAYER, playerOffsetX, playerOffsetY, z, iconScale, PLAYER_ICON_WIDTH, PLAYER_ICON_HEIGHT, playerRotation, light, argb);
 	}
 
-	default void renderTiles(PoseStack matrices, MultiBufferSource vertexConsumers, int light) {
+	default void renderTiles(PoseStack poseStack, MultiBufferSource bufferSource, int light) {
 		int mapStartChunkX = MathUtil.roundToBase(screenXToWorldX(bookX()) >> 4, tileChunks()) - 2 * tileChunks();
 		int mapStartChunkZ = MathUtil.roundToBase(screenYToWorldZ(bookY()) >> 4, tileChunks()) - 2 * tileChunks();
 		int mapEndChunkX = MathUtil.roundToBase(screenXToWorldX(bookX() + bookWidth()) >> 4, tileChunks()) + 2 * tileChunks();
@@ -261,9 +261,9 @@ public interface AtlasRenderer {
 		int mapX = bookX() + MAP_BORDER_WIDTH;
 		int mapY = bookY() + MAP_BORDER_HEIGHT;
 		float effectiveScale = (float) (mapScale() / guiScale());
-		matrices.pushPose();
-		matrices.translate(Math.round(mapStartScreenX), Math.round(mapStartScreenY), 0);
-		matrices.scale(effectiveScale, effectiveScale, 1.0F);
+		poseStack.pushPose();
+		poseStack.translate(Math.round(mapStartScreenX), Math.round(mapStartScreenY), 0);
+		poseStack.scale(effectiveScale, effectiveScale, 1.0F);
 
 		int subTilePixels = tilePixels() / 2;
 		boolean fade = AntiqueAtlas.CONFIG.fadeEdges;
@@ -272,7 +272,7 @@ public interface AtlasRenderer {
 			IntArrayList subtiles = batch.getValue();
 			if (subtiles.isEmpty()) continue;
 			int[] data = subtiles.elements();
-			try (DrawBatcher batcher = new DrawBatcher(matrices, vertexConsumers, batch.getKey().id(), 32, 48, light, true)) {
+			try (DrawBatcher batcher = new DrawBatcher(poseStack, bufferSource, batch.getKey().id(), 32, 48, light, true)) {
 				for (int i = 0, size = subtiles.size(); i < size; i += TileBatch.STRIDE) {
 					int drawX = data[i] * subTilePixels;
 					int drawY = data[i + 1] * subTilePixels;
@@ -285,6 +285,6 @@ public interface AtlasRenderer {
 			}
 		}
 
-		matrices.popPose();
+		poseStack.popPose();
 	}
 }
