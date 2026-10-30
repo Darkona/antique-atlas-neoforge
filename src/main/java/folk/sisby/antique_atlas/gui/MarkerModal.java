@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -60,7 +61,7 @@ public class MarkerModal extends Component {
 	protected Map<MarkerTexture, TexturePreviewButton<MarkerTexture>> textureButtons = new LinkedHashMap<>();
 	protected Map<DyeColor, TexturePreviewButton<DyeColor>> colorButtons = new LinkedHashMap<>();
 
-	protected final List<IMarkerTypeSelectListener> markerListeners = new ArrayList<>();
+	protected final List<Consumer<MarkerTexture>> markerListeners = new ArrayList<>();
 
 	public MarkerModal() {
 	}
@@ -88,7 +89,7 @@ public class MarkerModal extends Component {
 		if (colorRadioGroup != null) updateSelected();
 	}
 
-	void addMarkerListener(IMarkerTypeSelectListener listener) {
+	void addMarkerListener(Consumer<MarkerTexture> listener) {
 		markerListeners.add(listener);
 	}
 
@@ -143,8 +144,8 @@ public class MarkerModal extends Component {
 		textureRadioGroup = new ToggleButtonRadioGroup<>();
 		textureRadioGroup.addListener(button -> {
 			selectedTexture = button.getValue();
-			for (IMarkerTypeSelectListener listener : markerListeners) {
-				listener.onSelectMarkerType(button.getValue());
+			for (Consumer<MarkerTexture> listener : markerListeners) {
+				listener.accept(button.getValue());
 			}
 		});
 		int contentX = 0;
@@ -230,9 +231,5 @@ public class MarkerModal extends Component {
 			colorScrollBox.getGuiY() + colorScrollBox.getHeight(),
 			0x88101010, 0x99101010);
 		super.render(context, mouseX, mouseY, partialTick);
-	}
-
-	public interface IMarkerTypeSelectListener {
-		void onSelectMarkerType(MarkerTexture texture);
 	}
 }
