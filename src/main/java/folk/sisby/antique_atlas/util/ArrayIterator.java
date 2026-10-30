@@ -7,6 +7,7 @@ import java.util.Iterator;
  *
  * @author Hunternif
  */
+@Deprecated(forRemoval = true)
 public class ArrayIterator<T> implements Iterator<T> {
 	protected final T[] array;
 	protected int currentIndex = 0;

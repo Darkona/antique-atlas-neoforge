@@ -1,6 +1,6 @@
 package folk.sisby.antique_atlas.gui.tiles;
 
-import folk.sisby.antique_atlas.util.ArrayIterator;
+import it.unimi.dsi.fastutil.objects.ObjectIterators;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
@@ -46,6 +46,6 @@ public class SubTileQuartet implements Iterable<SubTile> {
 
 	@Override
 	public @NotNull Iterator<SubTile> iterator() {
-		return new ArrayIterator<>(array);
+		return ObjectIterators.wrap(array);
 	}
 }
