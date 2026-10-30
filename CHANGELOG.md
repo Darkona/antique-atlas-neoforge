@@ -9,6 +9,12 @@ Links such as `antique-atlas#358` go to the [original project's issues](https://
 ### Added
 - 2026-10-18: Two marker icons for your own markers: `tomb` and `nether_portal`, from the original Antique Atlas by Hunternif (CC BY-NC-SA), recolored with an accent layer like the other icons.
 
+### Deprecated
+- 2026-10-29: For addon authors: `TileTexture.DEFAULT`, `TerrainTileProvider.DEFAULT`, the `AtlasRenderer.renderMarker` overload that takes a `BiFunction`, `util.ArrayIterator` and `util.CodecUtil.CodecResourceMetadataSerializer` are marked for removal in a later release. Use `TileTexture.fallback()`, `TerrainTileProvider.fallback()`, `AtlasRenderer.drawMarker`, fastutil's `ObjectIterators.wrap` and vanilla's `MetadataSectionType.fromCodec` instead.
+
+### Removed
+- 2026-10-29: For addon authors: `util.ConventionalBiomeTagsV1`, `util.ConventionalBiomeTagsV2` and `util.ForgeTags`. Use NeoForge's `Tags.Biomes`; the old Fabric and Forge tag ids do not exist on NeoForge 1.21.1. Biomes without their own tiles fall back to the same tiles as before.
+
 ## [2.0.0+1.21-neoforge] - 2026-09-29
 
 ### Added
