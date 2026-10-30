@@ -66,9 +66,10 @@ class AtlasSourceGuardTest {
 	@Test
 	@DisplayName("The optional-mod probe is bound once")
 	void irisProbeBoundOnce() throws IOException {
-		String src = read("util/DrawBatcher.java");
+		String src = read("compat/iris/IrisShaders.java");
 		assertEquals(1, src.split("Class\\.forName", -1).length - 1, "Class.forName must only appear in the one-time binder");
-		assertTrue(src.contains("private static final MethodHandle IRIS_SHADERS_IN_USE = bindIrisProbe();"));
+		assertTrue(src.contains("private static final MethodHandle SHADER_PACK_IN_USE = bindProbe();"));
+		assertFalse(read("util/DrawBatcher.java").contains("Class.forName"), "the Iris probe lives in compat/iris");
 	}
 
 	@Test

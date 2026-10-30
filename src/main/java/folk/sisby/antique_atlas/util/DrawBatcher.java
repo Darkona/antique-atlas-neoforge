@@ -9,12 +9,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import folk.sisby.antique_atlas.compat.iris.IrisShaders;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -30,27 +28,8 @@ public class DrawBatcher implements AutoCloseable {
 	protected final int light;
 	protected final boolean inWorld;
 
-	// Fix: probe Iris once instead of reflecting (and throwing without Iris) for every batcher.
-	private static final MethodHandle IRIS_SHADERS_IN_USE = bindIrisProbe();
-
-	private static MethodHandle bindIrisProbe() {
-		try {
-			Class<?> apiClass = Class.forName("net.irisshaders.iris.api.v0.IrisApi");
-			MethodHandles.Lookup lookup = MethodHandles.publicLookup();
-			Object api = lookup.findStatic(apiClass, "getInstance", MethodType.methodType(apiClass)).invoke();
-			return lookup.findVirtual(apiClass, "isShaderPackInUse", MethodType.methodType(boolean.class)).bindTo(api);
-		} catch (Throwable e) {
-			return null;
-		}
-	}
-
 	public static boolean areWeShadersRightNow() {
-		if (IRIS_SHADERS_IN_USE == null) return false;
-		try {
-			return (boolean) IRIS_SHADERS_IN_USE.invokeExact();
-		} catch (Throwable e) {
-			return false;
-		}
+		return IrisShaders.inUse();
 	}
 
 	public static void drawSingle(PoseStack matrices, MultiBufferSource vertexConsumers, ResourceLocation texture, int textureWidth, int textureHeight, int light, int x, int y, float z, int width, int height, int u, int v, int regionWidth, int regionHeight, int argb, boolean drawingTransparent) {
@@ -70,7 +49,7 @@ public class DrawBatcher implements AutoCloseable {
 			this.vertexConsumer = bufferBuilder;
 		} else {
 			this.bufferBuilder = null;
-			if (areWeShadersRightNow()) {
+			if (IrisShaders.inUse()) {
 				if (drawingTransparent) {
 					this.vertexConsumer = vertexConsumers.getBuffer(RenderType.entityNoOutline(texture));
 				} else {
